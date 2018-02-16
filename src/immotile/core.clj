@@ -4,6 +4,7 @@
    [clojure.java.io :as io])
   (:gen-class))
 
+;;; Org ;;;
 
 (def org-export-command
   `(~'progn
@@ -25,10 +26,24 @@
   ["emacs" "-batch" "-eval" (elisp-sexp absolute-path)])
 
 
+(defn absolute-file-path [path] (.getAbsolutePath (io/file path)))
+
+
 (defn org->html
   [path]
-  (apply shell/sh (emacs-shell-command (.getAbsolutePath (io/file path)))))
+  (apply shell/sh (emacs-shell-command (absolute-file-path path))))
 
+
+;;; Read a lispy HTML template and generate real HTML ;;;
+;;; Embed org document inside the HTML template ;;;;
+;;; Handle shell errors ;;;
+;;; Read all org-files in folder ;;;
+;;; Support for org-mode options ;;;
+;;; Serve generated HTML with webserver ;;;
+;;; Watch source files for updates and regenerate if needed ;;;
+
+
+;;; Main ;;;
 
 (defn -main
   [& args]
