@@ -2,10 +2,8 @@
   (:require
    [clojure.java.shell :as shell]
    [clojure.java.io :as io]
-   [clojure.edn :as edn]
    [clojure.string :as str]
-   [hiccup.core :refer [html]]
-   [hiccup.page :as hpage])
+   [hiccup.core :refer [html]])
   (:gen-class))
 
 ;;; Org ;;;
