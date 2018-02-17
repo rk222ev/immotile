@@ -1,7 +1,11 @@
 (ns immotile.core
   (:require
    [clojure.java.shell :as shell]
-   [clojure.java.io :as io])
+   [clojure.java.io :as io]
+   [clojure.edn :as edn]
+   [clojure.string :as str]
+   [hiccup.core :refer [html]]
+   [hiccup.page :as hpage])
   (:gen-class))
 
 ;;; Org ;;;
@@ -34,7 +38,31 @@
   (apply shell/sh (emacs-shell-command (absolute-file-path path))))
 
 
-;;; Read a lispy HTML template and generate real HTML ;;;
+;;; Read a lispy HTML template and generate real HTML using the ORG file as body;;;
+
+(defn remove-newlines [s] (str/replace s #"\n" ""))
+
+(defn read-template-fn [path] (load-file path))
+
+(defn create-page-data
+  [org-file]
+  {:body (:out (org->html org-file))
+   :title "Site title!"})
+
+(defn generate-page
+  [template-fn data]
+  (->> (template-fn data)
+       (html)
+       (remove-newlines)
+       (str "<!doctype html>")))
+
+(comment
+  (generate-page
+   (read-template-fn "resources/templates/default.clj")
+   (create-page-data "test/resources/test.org"))
+
+)
+
 ;;; Embed org document inside the HTML template ;;;;
 ;;; Handle shell errors ;;;
 ;;; Read all org-files in folder ;;;
@@ -50,19 +78,3 @@
   (println args)
   (println (first args))
   (spit "out.html" (:out (org->html (first args)))))
-
-
-(comment
-  "Prints all files in test/resources"
-  (for [x (file-seq (io/file "./test/resources"))]
-    (println x)))
-
-
-(comment
-  (spit "hello.html" (:out (org->html "test/resources/test.org")))
-
-  (org->html "test/resources/test.org")
-
-  (elisp-sexp "some/file/path")
-
-  )

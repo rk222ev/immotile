@@ -1,0 +1,7 @@
+[:html
+ [:head]
+ [:body
+  [:div
+   [:p "Hello there"]
+   [:div {:class "content"}]
+   #immotile "hello"]]]
