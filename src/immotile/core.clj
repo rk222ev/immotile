@@ -4,7 +4,8 @@
    [clojure.java.io :as io]
    [clojure.string :as str]
    [hiccup.core :refer [html]]
-   [org.httpkit.server :as server])
+   [org.httpkit.server :as server]
+   [hawk.core :as hawk])
   (:gen-class))
 
 ;;; Org ;;;
@@ -55,14 +56,6 @@
        (str "<!doctype html>")))
 
 
-(comment
-  (spit "out.html"
-        (generate-page
-         (read-template-fn "resources/templates/default.clj")
-         (create-page-data "test/resources/test.org")))
-
-)
-
 ;;; Handle shell errors ;;;
 ;;; Read all org-files in folder ;;;
 ;;; Support for org-mode options ;;;
@@ -78,14 +71,38 @@
     {:body body :headers headers}))
 
 
-(comment
-  (serve-static {:uri "/out.html" :headers {}}))
-
-
 (defn run []
   (server/run-server serve-static {:port 8080}))
 
+
 ;;; Watch source files for updates and regenerate if needed ;;;
+(def state (atom {}))
+
+
+(defn filename-without-extension
+  [^java.io.File file]
+  (str/join "." (drop-last (str/split (.getName file) #"\."))))
+
+
+(defn regenerate-file
+  [_ {file :file kind :kind}]
+  (let [file-extension (last (str/split (.getAbsolutePath file) #"\."))
+        filename (filename-without-extension file)]
+    (condp = file-extension
+      "org" (spit (str filename ".html")
+                  (generate-page
+                   (read-template-fn "resources/templates/default.clj")
+                   (create-page-data (.getAbsolutePath file))))
+      nil)))
+
+
+(defn start-watcher
+  []
+  (let [w (hawk/watch! [{:paths ["im-src/"] :handler regenerate-file}])]
+    (swap! state (fn [x] w))))
+
+
+(defn stop-watcher [] (hawk/stop! @state) (reset! state nil))
 
 
 ;;; Main ;;;
