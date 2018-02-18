@@ -3,8 +3,6 @@
    [clojure.java.shell :as shell]
    [clojure.java.io :as io]
    [clojure.string :as str]
-   [compojure.core :refer [defroutes]]
-   [compojure.route :as route]
    [hiccup.core :refer [html]]
    [org.httpkit.server :as server])
   (:gen-class))
