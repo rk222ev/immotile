@@ -4,9 +4,11 @@
    [clojure.java.io :as io]
    [clojure.string :as str]
    [hiccup.core :refer [html]]
-   [org.httpkit.server :as server]
-   [hawk.core :as hawk])
+   [hawk.core :as hawk]
+   [immotile.config :refer [config]]
+   [immotile.server :as server])
   (:gen-class))
+
 
 ;;; Org ;;;
 (def org-export-command
@@ -59,22 +61,6 @@
 ;;; Handle shell errors ;;;
 ;;; Read all org-files in folder ;;;
 ;;; Support for org-mode options ;;;
-;;; Serve generated HTML with webserver ;;;
-(defn serve-static [req]
-  (let [mime-types {".clj" "text/plain"
-                    ".mp4" "video/mp4"
-                    ".ogv" "video/ogg"}
-        strip-leading-slash (fn [s] (str/replace-first s "/" ""))
-        headers (if-let [mimetype (mime-types (re-find #"\..+$" (:uri req)))]
-                  {:headers {"Content-Type" mimetype}})
-        body (slurp (strip-leading-slash (:uri req)))]
-    {:body body :headers headers}))
-
-
-(defn run []
-  (server/run-server serve-static {:port 8080}))
-
-
 ;;; Watch source files for updates and regenerate if needed ;;;
 (def state (atom {}))
 
@@ -84,21 +70,48 @@
   (str/join "." (drop-last (str/split (.getName file) #"\."))))
 
 
+(defn get-file-path [f] (str/join "/" (drop 1 (str/split (.getPath f) #"/"))))
+
+
+(defn copy-to-out
+  [file]
+  (let [destination (str (:out (config)) "/" (get-file-path file))]
+    (io/make-parents destination)
+    (io/copy
+     file
+     (io/file destination))))
+
+
+(defn generate-org
+  [file]
+  (let [
+        filename (filename-without-extension file)
+        destination (str (:out (config)) "/" filename ".html")]
+    (io/make-parents (io/file destination))
+    (spit destination
+          (generate-page
+           (read-template-fn "resources/templates/default.clj")
+           (create-page-data (.getAbsolutePath file))))))
+
+
 (defn regenerate-file
   [_ {file :file kind :kind}]
-  (let [file-extension (last (str/split (.getAbsolutePath file) #"\."))
-        filename (filename-without-extension file)]
+  (let [file-extension (last (str/split (.getAbsolutePath file) #"\."))]
     (condp = file-extension
-      "org" (spit (str filename ".html")
-                  (generate-page
-                   (read-template-fn "resources/templates/default.clj")
-                   (create-page-data (.getAbsolutePath file))))
-      nil)))
+      "org" (generate-org file)
+      (copy-to-out file))))
+
+
+(defn process-all-source-files
+  []
+  (doall
+   (for [f (drop 1 (file-seq (io/file "im-src")))]
+     (when (.isFile f) (regenerate-file nil {:file f})))))
 
 
 (defn start-watcher
   []
-  (let [w (hawk/watch! [{:paths ["im-src/"] :handler regenerate-file}])]
+  (let [w (hawk/watch! [{:paths ["im-src/pages/"] :handler regenerate-file}])]
     (swap! state (fn [x] w))))
 
 
@@ -107,8 +120,11 @@
 
 ;;; Main ;;;
 
+(defn create-folders [] (.mkdirs (io/file (:out (config)))))
+
 (defn -main
   [& args]
-  (println args)
-  (println (first args))
-  (spit "out.html" (:out (org->html (first args)))))
+  (create-folders)
+  (process-all-source-files)
+  (start-watcher)
+  (server/start))
