@@ -1,22 +1,20 @@
 (ns immotile.server
   (:require
-   [org.httpkit.server :as server]
-   [immotile.config :refer [config]]))
+   [org.httpkit.server :as server]))
 
 
-(defn- serve-static [req]
+(defn- serve-static [config req]
   (let [mime-types {".clj" "text/plain"
                     ".mp4" "video/mp4"
                     ".ogv" "video/ogg"}
-        headers (if-let [mimetype (mime-types (re-find #"\..+$" (:uri req)))]
+        uri (:uri req)
+        headers (if-let [mimetype (mime-types (re-find #"\..+$" uri))]
                   {:headers {"Content-Type" mimetype}})
-        body (slurp (str (:out (config))
-                         (if (= "/" (:uri req))
+        body (slurp (str (:out config)
+                         (if (= "/" uri)
                            "/index.html"
-                           (:uri req))))]
+                           uri)))]
     {:body body :headers headers}))
 
 
-(defn start
-  []
-  (server/run-server serve-static {:port 8080}))
+(defn start [config] (server/run-server (fn [req] (serve-static config req)) {:port (:port config)}))
