@@ -21,5 +21,12 @@
    [:body
     [:div
      [:p "Hello there"]
+     [:div
+      [:ul
+       [:li [:a {:href "/index.html"} "home"]]
+       [:li [:a {:href "/hello.html"} "hello"]]
+       [:li [:a {:href "/intro.html"} "intro"]]]]
      [:div {:class "content"}]
+     [:p (str "hello: " (first (:posts data)))]
+     [:p (str "hello: " (:title data))]
      (:body data)]]])

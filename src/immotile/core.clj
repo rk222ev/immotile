@@ -11,3 +11,9 @@
   (let [c (config)]
     (converters/start c)
     (server/start c)))
+
+(comment
+
+  (converters/process-all-source-files (config))
+
+  )

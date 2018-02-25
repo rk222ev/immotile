@@ -6,7 +6,6 @@
    [hiccup.core :refer [html]]
    [immotile.converters.core :as converters]))
 
-(defn- remove-newlines [s] (str/replace s #"\n" ""))
 
 (defn- read-template-fn [path] (load-file path))
 
@@ -32,6 +31,7 @@
 (defn- create-page-data
   [org-file]
   {:body (:out (apply shell/sh (emacs-shell-command (absolute-file-path org-file))))
+   :posts ["intro"]
    :title "Site title!"})
 
 
@@ -40,24 +40,21 @@
   (str/join "." (drop-last (str/split (.getName file) #"\."))))
 
 
-(defn- generate-page
-  [template-fn data]
-  (->> (template-fn data)
-       (html)
-       (remove-newlines)
-       (str "<!doctype html>")))
-
-
 (defn- generate-org
   [config file]
-  (let [
-        filename (filename-without-extension file)
+  (let [filename (filename-without-extension file)
         destination (str (:out config) "/" filename ".html")]
     (io/make-parents (io/file destination))
     (spit destination
-          (generate-page
+          (converters/generate-page
            (read-template-fn "resources/templates/default.clj")
            (create-page-data (.getAbsolutePath file))))))
 
 
 (defmethod converters/->convert :org [config file] (generate-org config file))
+
+
+(defn- read-org-settings
+  []
+  (with-open [rdr (clojure.java.io/reader "im-src/posts/intro.org")]
+    (vec (take-while (fn [l] (or (str/blank? l) (str/includes? l "#+"))) (line-seq rdr)))))

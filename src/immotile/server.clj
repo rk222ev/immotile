@@ -2,6 +2,7 @@
   (:require
    [org.httpkit.server :as server]))
 
+(defonce ^:private state (atom {}))
 
 (defn- serve-static [config req]
   (let [mime-types {".clj" "text/plain"
@@ -17,4 +18,12 @@
     {:body body :headers headers}))
 
 
-(defn start [config] (server/run-server (fn [req] (serve-static config req)) {:port (:port config)}))
+(defn start
+  [config]
+  (let [s  (server/run-server
+            (fn [req] (serve-static config req))
+            {:port (:port config)})]
+    (reset! state s)))
+
+
+(defn stop [] (@state))
