@@ -3,11 +3,8 @@
    [clojure.java.io :as io]
    [clojure.java.shell :as shell]
    [clojure.string :as str]
-   [hiccup.core :refer [html]]
    [immotile.converters.core :as converters]))
 
-
-(defn- read-template-fn [path] (load-file path))
 
 (def ^:private org-export-command
   `(~'progn
@@ -28,30 +25,12 @@
 
 (defn- absolute-file-path [path] (.getAbsolutePath (io/file path)))
 
-(defn- create-page-data
-  [org-file]
-  {:body (:out (apply shell/sh (emacs-shell-command (absolute-file-path org-file))))
+
+(defmethod converters/convert :org
+  [_ file]
+  {:body (:out (apply shell/sh (emacs-shell-command (absolute-file-path file))))
    :posts ["intro"]
    :title "Site title!"})
-
-
-(defn- filename-without-extension
-  [^java.io.File file]
-  (str/join "." (drop-last (str/split (.getName file) #"\."))))
-
-
-(defn- generate-org
-  [config file]
-  (let [filename (filename-without-extension file)
-        destination (str (:out config) "/" filename ".html")]
-    (io/make-parents (io/file destination))
-    (spit destination
-          (converters/generate-page
-           (read-template-fn "resources/templates/default.clj")
-           (create-page-data (.getAbsolutePath file))))))
-
-
-(defmethod converters/->convert :org [config file] (generate-org config file))
 
 
 (defn- read-org-settings

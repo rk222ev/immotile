@@ -16,4 +16,8 @@
 
   (converters/process-all-source-files (config))
 
+  (converters/start-watcher (config))
+
+  (server/start (config))
+
   )

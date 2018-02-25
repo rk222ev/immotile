@@ -10,6 +10,7 @@
 
 (defn- get-file-path [f] (str/join "/" (drop 1 (str/split (.getPath f) #"/"))))
 (defn- remove-newlines [s] (str/replace s #"\n" ""))
+(defn- read-template-fn [path] (load-file path))
 
 (defn- copy-to-out
   [out-path file]
@@ -28,21 +29,64 @@
        (str "<!doctype html>")))
 
 
-(defmulti ->convert
+(defmulti convert
   (fn [config ^java.io.File file]
     (keyword (last (str/split (.getAbsolutePath file) #"\.")))))
 
-(defmethod ->convert :edn  [config file])
-(defmethod ->convert :default [config file] (copy-to-out (:out config) file))
+(defmethod convert :edn  [config file])
+(defmethod convert :default [config file] (copy-to-out (:out config) file))
 
-(defn regenerate-file [config {file :file kind :kind}] (->convert config file))
+
+(defn- filename-without-extension
+  [^java.io.File file]
+  (str/join "." (drop-last (str/split (.getName file) #"\."))))
+
+
+(defn write-file
+  [config file destination]
+  (let [page-data (convert config file)
+        filename (filename-without-extension file)
+        dest (destination filename)]
+    (io/make-parents (io/file dest))
+    (spit dest
+          (generate-page
+           (read-template-fn "resources/templates/default.clj")
+           page-data))))
+
+(defn- write-page
+  [config file]
+  (let [destination (fn [filename] (str (:out config) "/" filename ".html"))]
+    (write-file config file destination)))
+
+
+(defn- write-post
+  [config file]
+  (let [destination (fn [filename] (str (:out config) "/posts/" filename ".html"))]
+    (write-file config file destination)))
+
+
+(defn- post? [file] (boolean (re-find #"/posts/" (.getPath file))))
+(defn- page? [file] (boolean (re-find #"/pages/" (.getPath file))))
+(defn- directory? [file] (.isDirectory file))
+(defn- config-file? [file] (boolean (re-find #"config.edn" (.getName file))))
+
+(defn regenerate-file
+  [config {file :file kind :kind}]
+  (condp #(%1 %2) file
+    directory? nil
+    config-file? nil
+    post? (write-post config file)
+    page? (write-page config file)
+    (copy-to-out (:out config) file)))
+
 
 (defn- create-folders [path] (.mkdirs (io/file path)))
 
 (defn process-all-source-files
   [config]
-  (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f})))
-        (drop 1 (file-seq (io/file "im-src")))))
+  (doall
+   (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f})))
+         (drop 1 (file-seq (io/file "im-src"))))))
 
 
 (defn start-watcher
