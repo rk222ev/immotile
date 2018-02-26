@@ -25,15 +25,32 @@
 
 (defn- absolute-file-path [path] (.getAbsolutePath (io/file path)))
 
-
-(defmethod converters/convert :org
-  [_ file]
-  {:body (:out (apply shell/sh (emacs-shell-command (absolute-file-path file))))
-   :posts ["intro"]
-   :title "Site title!"})
-
+(defn- find-date-option
+  [settings]
+  (when settings
+    (let [option #"#\+DATE"
+          date #"(\d+-\d\d-\d\d)"]
+      (->> settings
+           (some #(if (re-find option %) % nil))
+           (re-find date)))))
 
 (defn- read-org-settings
-  []
-  (with-open [rdr (clojure.java.io/reader "im-src/posts/intro.org")]
+  [path]
+  (with-open [rdr (clojure.java.io/reader path)]
     (vec (take-while (fn [l] (or (str/blank? l) (str/includes? l "#+"))) (line-seq rdr)))))
+
+(defn- convert
+  [config file]
+  (merge
+   config
+   (let [path (absolute-file-path file)]
+     {:body (:out (apply shell/sh (emacs-shell-command path)))
+      :date (first (find-date-option (read-org-settings path)))})))
+
+(defmethod converters/convert :org [config file] (convert config file))
+
+
+(comment
+  (:date (convert {} (io/file "im-src/pages/index.org")))
+
+  )

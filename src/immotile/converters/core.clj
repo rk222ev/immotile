@@ -8,9 +8,10 @@
 
 (defonce ^:private state (atom {}))
 
+(defn- create-folders [path] (.mkdirs (io/file path)))
 (defn- get-file-path [f] (str/join "/" (drop 1 (str/split (.getPath f) #"/"))))
-(defn- remove-newlines [s] (str/replace s #"\n" ""))
 (defn- read-template-fn [path] (load-file path))
+(defn- remove-newlines [s] (str/replace s #"\n" ""))
 
 (defn- copy-to-out
   [out-path file]
@@ -33,37 +34,33 @@
   (fn [config ^java.io.File file]
     (keyword (last (str/split (.getAbsolutePath file) #"\.")))))
 
-(defmethod convert :edn  [config file])
+(defmethod convert :edn [config file])
 (defmethod convert :default [config file] (copy-to-out (:out config) file))
-
 
 (defn- filename-without-extension
   [^java.io.File file]
-  (str/join "." (drop-last (str/split (.getName file) #"\."))))
+  (-> file
+      .getName
+      (str/split #"\.")
+      drop-last
+      (->> (str/join "."))))
 
+(filename-without-extension (io/file "im-src/pages/index.org"))
 
-(defn write-file
-  [config file destination]
+(defn- write-file
+  [config file sub-path]
   (let [page-data (convert config file)
         filename (filename-without-extension file)
-        dest (destination filename)]
+        dest (str (:out config) "/" sub-path filename ".html")]
     (io/make-parents (io/file dest))
     (spit dest
           (generate-page
            (read-template-fn "resources/templates/default.clj")
            page-data))))
 
-(defn- write-page
-  [config file]
-  (let [destination (fn [filename] (str (:out config) "/" filename ".html"))]
-    (write-file config file destination)))
+(defn- write-page [config file] (write-file config file ""))
 
-
-(defn- write-post
-  [config file]
-  (let [destination (fn [filename] (str (:out config) "/posts/" filename ".html"))]
-    (write-file config file destination)))
-
+(defn- write-post [config file] (write-file config file "posts/"))
 
 (defn- post? [file] (boolean (re-find #"/posts/" (.getPath file))))
 (defn- page? [file] (boolean (re-find #"/pages/" (.getPath file))))
@@ -79,19 +76,16 @@
     page? (write-page config file)
     (copy-to-out (:out config) file)))
 
-
-(defn- create-folders [path] (.mkdirs (io/file path)))
-
 (defn process-all-source-files
   [config]
   (doall
    (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f})))
          (drop 1 (file-seq (io/file "im-src"))))))
 
-
 (defn start-watcher
   [config]
-  (let [w (hawk/watch! [{:paths ["im-src/"] :handler (fn [_ x] (regenerate-file config x))}])]
+  (let [w (hawk/watch! [{:paths ["im-src/"]
+                         :handler (fn [_ x] (regenerate-file config x))}])]
     (swap! state (fn [x] w))))
 
 
