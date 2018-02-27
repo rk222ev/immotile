@@ -65,7 +65,6 @@
 
 (defn regenerate-file
   [config {file :file kind :kind}]
-  (println file)
   (condp #(%1 %2) file
     directory? nil
     config-file? nil
@@ -76,9 +75,7 @@
 
 (defn- process-files
   [config files]
-  (doall
-   (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f})))
-         (drop 1 files))))
+  (doall (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f}))) files)))
 
 (defn- read-all-files []  (file-seq (io/file "im-src")))
 (defn process-all-source-files [config] (process-files config (read-all-files)))
