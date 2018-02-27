@@ -2,6 +2,7 @@
   (:require
    [immotile.config :refer [config]]
    [immotile.converters.core :as converters]
+   [immotile.converters.clj]
    [immotile.converters.org]
    [immotile.server :as server])
   (:gen-class))

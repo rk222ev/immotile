@@ -97,3 +97,11 @@
   (create-folders (:out config))
   (process-all-source-files config)
   (start-watcher config))
+
+
+;; Can be :page :post :template
+;; in the formats :clj :org
+;; posts must be in org
+;; First read the templates
+;; then build posts and collect them into the app state
+;; then build the pages

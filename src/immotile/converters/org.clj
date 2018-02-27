@@ -27,7 +27,7 @@
 
 (defn- find-date-option
   [settings]
-  (when settings
+  (when (not-empty settings)
     (let [option #"#\+DATE"
           date #"(\d+-\d\d-\d\d)"]
       (->> settings
