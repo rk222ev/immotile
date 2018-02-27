@@ -17,7 +17,7 @@
 
      ;;         <link rel="stylesheet" href="css/normalize.css">
     ;;         <link rel="stylesheet" href="css/main.css">
-    [:link {:rel :stylesheet :href "default.css"}]]
+    [:link {:rel :stylesheet :href "/default.css"}]]
    [:body
     [:div {:id :wrap}
      [:h1 title]

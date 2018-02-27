@@ -6,8 +6,6 @@
    [hawk.core :as hawk]
    [hiccup.core :refer [html]]))
 
-(defonce ^:private state (atom {}))
-
 (defn- create-folders [path] (.mkdirs (io/file path)))
 (defn- get-file-path [f] (str/join "/" (drop 1 (str/split (.getPath f) #"/"))))
 (defn- read-template-fn [path] (load-file path))
@@ -45,8 +43,6 @@
       drop-last
       (->> (str/join "."))))
 
-(filename-without-extension (io/file "im-src/pages/index.org"))
-
 (defn- write-file
   [config file sub-path]
   (let [page-data (convert config file)
@@ -55,32 +51,43 @@
     (io/make-parents (io/file dest))
     (spit dest
           (generate-page
-           (read-template-fn "resources/templates/default.clj")
+           (read-template-fn "im-src/templates/default.clj")
            page-data))))
 
 (defn- write-page [config file] (write-file config file ""))
-
 (defn- write-post [config file] (write-file config file "posts/"))
-
-(defn- post? [file] (boolean (re-find #"/posts/" (.getPath file))))
-(defn- page? [file] (boolean (re-find #"/pages/" (.getPath file))))
 (defn- directory? [file] (.isDirectory file))
-(defn- config-file? [file] (boolean (re-find #"config.edn" (.getName file))))
+(defn- is-of-path [regexp] (fn [file] (boolean (re-find regexp (.getPath file)))))
+(def ^:private post? (is-of-path #"/posts/"))
+(def ^:private- page? (is-of-path #"/pages/"))
+(def ^:private- template? (is-of-path #"/templates/"))
+(def ^:private- config-file? (is-of-path #"config.edn"))
 
 (defn regenerate-file
   [config {file :file kind :kind}]
+  (println file)
   (condp #(%1 %2) file
     directory? nil
     config-file? nil
     post? (write-post config file)
     page? (write-page config file)
+    template? (process-all-but-templates config)
     (copy-to-out (:out config) file)))
 
-(defn process-all-source-files
-  [config]
+(defn- process-files
+  [config files]
   (doall
    (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f})))
-         (drop 1 (file-seq (io/file "im-src"))))))
+         (drop 1 files))))
+
+(defn- read-all-files []  (file-seq (io/file "im-src")))
+(defn process-all-source-files [config] (process-files config (read-all-files)))
+(defn- process-all-but-templates [config]
+  (->> (read-all-files)
+       (filter #(not (re-find #"/templates/" (.getPath %))))
+       (process-files config)))
+
+(defonce ^:private state (atom {}))
 
 (defn start-watcher
   [config]
@@ -97,11 +104,3 @@
   (create-folders (:out config))
   (process-all-source-files config)
   (start-watcher config))
-
-
-;; Can be :page :post :template
-;; in the formats :clj :org
-;; posts must be in org
-;; First read the templates
-;; then build posts and collect them into the app state
-;; then build the pages

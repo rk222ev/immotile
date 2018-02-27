@@ -10,6 +10,6 @@
 (defn- convert [config file]
  (let [f (read-fn-from-file "im-src/pages/index.clj")
       state {:posts ["posts/intro.html"]}]
-  (f state)))
+   {:body (f state)}))
 
 (defmethod converters/convert :clj [config file] (convert config file))
