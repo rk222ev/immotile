@@ -8,7 +8,7 @@
 (defn read-fn-from-file [path] (load-file path))
 
 (defn- convert [config file]
- (let [f (read-fn-from-file "im-src/pages/index.clj")
+ (let [f (read-fn-from-file file)
       state {:posts ["posts/intro.html"]}]
    {:body (f state)}))
 
