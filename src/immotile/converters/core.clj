@@ -10,6 +10,12 @@
 (defn- get-file-path [f] (str/join "/" (drop 1 (str/split (.getPath f) #"/"))))
 (defn- read-template-fn [path] (load-file path))
 (defn- remove-newlines [s] (str/replace s #"\n" ""))
+(defn- directory? [file] (.isDirectory file))
+(defn- is-of-path [regexp] (fn [file] (boolean (re-find regexp (.getPath file)))))
+(defn- post? [file] (is-of-path #"/posts/" file))
+(defn- page? [file] (is-of-path #"/pages/" file))
+(defn- template? [file] (is-of-path #"/templates/" file))
+(defn- config-file? [file] (is-of-path #"config.edn" file))
 
 (defn- copy-to-out
   [out-path file]
@@ -56,33 +62,23 @@
 
 (defn- write-page [config file] (write-file config file ""))
 (defn- write-post [config file] (write-file config file "posts/"))
-(defn- directory? [file] (.isDirectory file))
-(defn- is-of-path [regexp] (fn [file] (boolean (re-find regexp (.getPath file)))))
-(def ^:private post? (is-of-path #"/posts/"))
-(def ^:private- page? (is-of-path #"/pages/"))
-(def ^:private- template? (is-of-path #"/templates/"))
-(def ^:private- config-file? (is-of-path #"config.edn"))
 
-(defn regenerate-file
+(defn- regenerate-file
   [config {file :file kind :kind}]
   (condp #(%1 %2) file
     directory? nil
     config-file? nil
     post? (write-post config file)
     page? (write-page config file)
-    template? (process-all-but-templates config)
+    template? (process-source-files config)
     (copy-to-out (:out config) file)))
 
-(defn- process-files
-  [config files]
-  (doall (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f}))) files)))
-
-(defn- read-all-files []  (file-seq (io/file "im-src")))
-(defn process-all-source-files [config] (process-files config (read-all-files)))
-(defn- process-all-but-templates [config]
-  (->> (read-all-files)
-       (filter #(not (re-find #"/templates/" (.getPath %))))
-       (process-files config)))
+(defn process-source-files
+  [config]
+  (let [files
+        (->> (file-seq (io/file "im-src"))
+             (filter #(not (re-find #"/templates/" (.getPath %)))))]
+    (doall (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f}))) files))))
 
 (defonce ^:private state (atom {}))
 
@@ -92,12 +88,10 @@
                          :handler (fn [_ x] (regenerate-file config x))}])]
     (swap! state (fn [x] w))))
 
-
 (defn stop-watcher [] (hawk/stop! @state) (reset! state nil))
-
 
 (defn start
   [config]
   (create-folders (:out config))
-  (process-all-source-files config)
+  (process-source-files config)
   (start-watcher config))

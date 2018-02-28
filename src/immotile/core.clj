@@ -15,7 +15,7 @@
 
 (comment
 
-  (converters/process-all-source-files (config))
+  (converters/process-source-files (config))
 
   (converters/start-watcher (config))
 
