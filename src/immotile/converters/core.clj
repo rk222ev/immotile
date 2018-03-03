@@ -11,20 +11,25 @@
 (defn- read-template-fn [path] (load-file path))
 (defn- remove-newlines [s] (str/replace s #"\n" ""))
 (defn- directory? [file] (.isDirectory file))
-(defn- is-of-path [regexp] (fn [file] (boolean (re-find regexp (.getPath file)))))
+(defn- is-of-path [regexp file] (boolean (re-find regexp (.getPath file))))
 (defn- post? [file] (is-of-path #"/posts/" file))
 (defn- page? [file] (is-of-path #"/pages/" file))
+(defn- public? [file] (is-of-path #"/public" file))
 (defn- template? [file] (is-of-path #"/templates/" file))
-(defn- config-file? [file] (is-of-path #"config.edn" file))
 
-(defn- copy-to-out
-  [out-path file]
-  (let [destination (str out-path "/" (get-file-path file))]
+(defn- copy
+  [out-path file file-path]
+  (let [destination (str out-path "/" file-path)]
     (io/make-parents destination)
     (io/copy
      file
      (io/file destination))))
 
+(defn- copy-public-to-out
+  [out-path file]
+  (copy out-path file (str/replace (get-file-path file) #"public/" "")))
+
+(defn- copy-to-out [out-path file] (copy out-path file (get-file-path file)))
 
 (defn- generate-page
   [template-fn data]
@@ -37,9 +42,6 @@
 (defmulti convert
   (fn [config ^java.io.File file]
     (keyword (last (str/split (.getAbsolutePath file) #"\.")))))
-
-(defmethod convert :edn [config file])
-(defmethod convert :default [config file] (copy-to-out (:out config) file))
 
 (defn- filename-without-extension
   [^java.io.File file]
@@ -63,21 +65,23 @@
 (defn- write-page [config file] (write-file config file ""))
 (defn- write-post [config file] (write-file config file "posts/"))
 
+(declare process-source-files) ;; Fix
+
 (defn- regenerate-file
   [config {file :file kind :kind}]
   (condp #(%1 %2) file
     directory? nil
-    config-file? nil
     post? (write-post config file)
     page? (write-page config file)
     template? (process-source-files config)
-    (copy-to-out (:out config) file)))
+    public? (copy-public-to-out (:out config) file)
+    nil))
 
 (defn process-source-files
   [config]
-  (let [files
-        (->> (file-seq (io/file "im-src"))
-             (filter #(not (re-find #"/templates/" (.getPath %)))))]
+  (let [filter-files ["/templates/" "config.edn"]
+        files (->> (file-seq (io/file "im-src"))
+                   (filter #(not (re-find (re-pattern (str/join "|" filter-files)) (.getPath %)))))]
     (doall (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f}))) files))))
 
 (defonce ^:private state (atom {}))
