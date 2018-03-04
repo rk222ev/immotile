@@ -2,8 +2,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.java.shell :as shell]
-   [clojure.string :as str]
-   [immotile.converters.core :as converters]))
+   [clojure.string :as str]))
 
 
 (def ^:private org-export-command
@@ -39,18 +38,10 @@
   (with-open [rdr (clojure.java.io/reader path)]
     (vec (take-while (fn [l] (or (str/blank? l) (str/includes? l "#+"))) (line-seq rdr)))))
 
-(defn- convert
+(defn convert
   [config file]
   (merge
    config
    (let [path (absolute-file-path file)]
      {:body (:out (apply shell/sh (emacs-shell-command path)))
       :date (first (find-date-option (read-org-settings path)))})))
-
-(defmethod converters/convert :org [config file] (convert config file))
-
-
-(comment
-  (:date (convert {} (io/file "im-src/pages/index.org")))
-
-  )
