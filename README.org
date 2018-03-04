@@ -2,7 +2,7 @@
 
 Build static sites using Emacs org-mode and Clojure.
 
-Hevily inspired by [[https://github.com/nakkaya/static][Static]].
+Heavily inspired by [[https://github.com/nakkaya/static][Static]].
 
 Under heavy development.
 
