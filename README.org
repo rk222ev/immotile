@@ -1,0 +1,43 @@
+* Immotile
+
+Build static sites using Emacs org-mode and Clojure.
+
+Hevily inspired by [[https://github.com/nakkaya/static][Static]].
+
+Under heavy development.
+
+** TODO Features
+- [X] Convert org to html
+- [X] Use Clojure code to generate templates using Hiccup
+- [X] Watch and generate html files on changes
+- [ ] Create a proper archive organizing post after date from org file
+- [ ] Create Css from Clojure (Garden, CljsCss?)
+- [ ] Add support for Clojurescript
+- [ ] Reload the browser if any html changes (Figwheel?)
+
+** Installation
+
+** Usage
+
+FIXME: explanation
+
+    $ java -jar immotile-0.1.0-standalone.jar [args]
+
+** Options
+
+FIXME: listing of options this app accepts.
+
+** Examples
+
+...
+
+*** Bugs
+
+...
+
+
+** License
+
+Copyright © 2018 Robin Karlssson
+
+Distributed under the Eclipse Public License either version 1.0
