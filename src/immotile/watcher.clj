@@ -56,10 +56,23 @@
     (spit dest
           (generate-page
            (read-template-fn "im-src/templates/default.clj")
-           page-data))))
+           page-data))
+    (dissoc page-data :body)))
 
 (defn- write-page [config file] (write-file config file ""))
-(defn- write-post [config file] (write-file config file "posts/"))
+
+(defn- write-post
+  [config file]
+  (let [page-data (c/convert config file)
+        filename (filename-without-extension file)
+        date (:date page-data)
+        dest (str (:out config) "/posts/" date "-" filename ".html")]
+    (io/make-parents (io/file dest))
+    (spit dest
+          (generate-page
+           (read-template-fn "im-src/templates/default.clj")
+           page-data))
+    (dissoc (merge page-data {:link (str "posts/" filename ".html")}) :body)))
 
 (declare process-source-files) ;; Fix
 
@@ -68,26 +81,52 @@
   (condp #(%1 %2) file
     directory? nil
     post? (write-post config file)
-    page? (write-page config file)
+    page? (write-page (assoc config :posts @aposts) file)
     template? (process-source-files config)
     public? (copy-public-to-out (:out config) file)
     nil))
 
+(defn- process-files
+  [config type fn]
+  (let [files (->> (file-seq (io/file (str "im-src/" (name type) "/")))
+                   (filter #(.isFile %)))]
+    (doall (pmap (partial fn config) files))))
+
+(defn- process-pages [config posts] (process-files (assoc config :posts posts) :pages write-page))
+(defn- process-posts [config] (process-files config :posts write-post))
+
+(defonce ^:private aposts (atom {:posts []}))
+
 (defn process-source-files
   [config]
-  (let [filter-files ["/templates/" "config.edn"]
+  (let [posts (process-posts config)
+        pages (process-pages config posts)
+        filter-files ["/templates/" "config.edn" "/pages/" "/posts"]
         files (->> (file-seq (io/file "im-src"))
                    (filter #(not (re-find (re-pattern (str/join "|" filter-files)) (.getPath %)))))]
+    (reset! aposts posts)
     (doall (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f}))) files))))
-
 
 (defonce ^:private state (atom {}))
 
+(defn- process-source-file
+  [config file]
+  (condp #(%1 %2) file
+      directory? nil
+      post? (write-post config file)
+      page? nil #_(write-page (assoc config :posts @aposts) file)
+      template? nil #_(process-source-files config)
+      public? (copy-public-to-out (:out config) file)
+      nil))
+
 (defn start-watcher
+  "Start the file watcher and regenerate on change."
   [config]
-  (let [w (hawk/watch! [{:paths ["im-src/"]
-                         :handler (fn [_ x] (regenerate-file config x))}])]
-    (swap! state (fn [x] w))))
+  (swap! state (fn
+                 [x]
+                 (hawk/watch!
+                  [{:paths ["im-src/"]
+                    :handler (fn [_ file] (process-source-file config file))}]))))
 
 (defn stop [] (hawk/stop! @state) (reset! state nil))
 
@@ -96,3 +135,11 @@
   (create-folders (:out config))
   (process-source-files config)
   (start-watcher config))
+
+(comment
+  (process-posts {:out "out/"})
+
+  (process-source-files {:out "out/"})
+
+  (process-pages {:out "out/"} @aposts)
+  )

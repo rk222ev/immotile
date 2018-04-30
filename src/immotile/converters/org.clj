@@ -25,13 +25,21 @@
 (defn- absolute-file-path [path] (.getAbsolutePath (io/file path)))
 
 (defn- find-date-option
-  [settings]
-  (when (not-empty settings)
-    (let [option #"#\+DATE"
-          date #"(\d+-\d\d-\d\d)"]
-      (->> settings
-           (some #(if (re-find option %) % nil))
-           (re-find date)))))
+  [options]
+  (let [option #"#\+DATE"
+        date #"(\d+-\d\d-\d\d)"]
+    (some->> options
+         (some #(if (re-find option %) % nil))
+         (re-find date))))
+
+(defn- find-title-option
+  [options]
+  (let [option #"#\+TITLE"]
+    (some-> options
+            (->> (some #(when (re-find option %) %)))
+            (str/split #":")
+            (second)
+            (str/trim))))
 
 (defn- read-org-settings
   [path]
@@ -40,8 +48,8 @@
 
 (defn convert
   [config file]
-  (merge
-   config
-   (let [path (absolute-file-path file)]
-     {:body (:out (apply shell/sh (emacs-shell-command path)))
-      :date (first (find-date-option (read-org-settings path)))})))
+  (let [path (absolute-file-path file)
+        options (read-org-settings path)]
+    {:body (:out (apply shell/sh (emacs-shell-command path)))
+     :title (find-title-option options)
+     :date (first (find-date-option options))}))

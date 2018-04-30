@@ -7,6 +7,5 @@
 (defn read-fn-from-file [path] (load-file path))
 
 (defn convert [config file]
-  (let [f (read-fn-from-file (.getPath file))
-        state {}]
-    {:body (f state)}))
+  (let [f (read-fn-from-file (.getPath file))]
+    {:body (f config)}))
