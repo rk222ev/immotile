@@ -76,6 +76,9 @@
 
 (declare process-source-files) ;; Fix
 
+(defonce ^:private aposts
+  (atom {:posts []}))
+
 (defn- regenerate-file
   [config {file :file kind :kind}]
   (condp #(%1 %2) file
@@ -92,10 +95,11 @@
                    (filter #(.isFile %)))]
     (doall (pmap (partial fn config) files))))
 
-(defn- process-pages [config posts] (process-files (assoc config :posts posts) :pages write-page))
-(defn- process-posts [config] (process-files config :posts write-post))
+(defn- process-pages
+  [config posts]
+  (process-files (assoc config :posts posts) :pages write-page))
 
-(defonce ^:private aposts (atom {:posts []}))
+(defn- process-posts [config] (process-files config :posts write-post))
 
 (defn process-source-files
   [config]
@@ -107,7 +111,8 @@
     (reset! aposts posts)
     (doall (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f}))) files))))
 
-(defonce ^:private state (atom {}))
+(defonce ^:private state
+  (atom {}))
 
 (defn- process-source-file
   [config file]
@@ -128,9 +133,14 @@
                   [{:paths ["im-src/"]
                     :handler (fn [_ file] (process-source-file config file))}]))))
 
-(defn stop [] (hawk/stop! @state) (reset! state nil))
+(defn stop
+  "Stop the watcher."
+  []
+  (hawk/stop! @state) (reset! state nil))
 
 (defn start
+  "Runs an initial file generation then launches a wather that regenerates
+  when a file is changed."
   [config]
   (create-folders (:out config))
   (process-source-files config)
