@@ -17,22 +17,18 @@
 (defn- public? [file] (is-of-path #"/public" file))
 (defn- template? [file] (is-of-path #"/templates/" file))
 
-(defn- copy
-  [out-path file file-path]
-  (let [destination (str out-path "/" file-path)]
+(defn- copy-public-to-out
+  "Copies `file` to public folder in `out-path`."
+  [out-path file]
+  (let [file-path (str/replace (get-file-path file) #"public/" "")
+        destination (str out-path "/" file-path)]
     (io/make-parents destination)
     (io/copy
      file
      (io/file destination))))
 
-(defn- copy-public-to-out
-  [out-path file]
-  (copy out-path file (str/replace (get-file-path file) #"public/" "")))
-
-(defn- copy-to-out [out-path file] (copy out-path file (get-file-path file)))
-
-
 (defn- filename-without-extension
+  "Returns the name of a `file`."
   [^java.io.File file]
   (-> file
       .getName
