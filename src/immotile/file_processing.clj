@@ -4,7 +4,7 @@
             [hiccup.core :refer [html]]
             [immotile.converters.core :as c]))
 
-(defn- single-files
+(defn- process-files
   [config type fn]
   (let [files (->> (file-seq (io/file (str "im-src/" (name type) "/")))
                    (filter #(.isFile %)))]
@@ -48,10 +48,7 @@
 (defonce ^:private all-posts
   (atom {:posts []}))
 
-(defn- directory? [file] (.isDirectory file))
 (defn- is-of-path [regexp file] (boolean (re-find regexp (.getPath file))))
-(defn- post? [file] (is-of-path #"/posts/" file))
-(defn- page? [file] (is-of-path #"/pages/" file))
 
 (defn- write-file
   ([config file]
@@ -67,19 +64,23 @@
             page-data))
      (dissoc page-data :body))))
 
-(defn- public? [file] (is-of-path #"/public" file))
-
-(defn- get-file-path [f] (str/join "/" (drop 1 (str/split (.getPath f) #"/"))))
 
 (defn- copy-public-to-out
   "Copies `file` to public folder in `out-path`."
   [out-path file]
-  (let [file-path (str/replace (get-file-path file) #"public/" "")
-        destination (str out-path "/" file-path)]
+  (let [destination (str
+                     out-path
+                     (-> (.getPath file)
+                         (str/replace "public/" "")))]
     (io/make-parents destination)
     (io/copy
      file
      (io/file destination))))
+
+(defn- directory? [file] (.isDirectory file))
+(defn- public? [file] (is-of-path #"/public" file))
+(defn- post? [file] (is-of-path #"/posts/" file))
+(defn- page? [file] (is-of-path #"/pages/" file))
 
 (defn single-file
   [config file]
@@ -92,7 +93,7 @@
 
 (defn all-files
   [config]
-  (let [posts (single-files config :posts write-post)
+  (let [posts (process-files config :posts write-post)
         filter-files ["/templates/" "config.edn" "/posts/"]
         files (->> (file-seq (io/file "im-src"))
                    (filter #(not (re-find (re-pattern (str/join "|" filter-files)) (.getPath %))))
