@@ -131,7 +131,7 @@
                  [x]
                  (hawk/watch!
                   [{:paths ["im-src/"]
-                    :handler (fn [_ file] (process-source-file config file))}]))))
+                    :handler (fn [_ file] (process-source-file config (:file file)))}]))))
 
 (defn stop
   "Stop the watcher."
