@@ -11,13 +11,3 @@
   (let [c (config)]
     (watcher/start c)
     (server/start c)))
-
-(comment
-
-  (watcher/process-source-files (config))
-
-  (watcher/start-watcher (config))
-
-  (server/start (config))
-
-  )
