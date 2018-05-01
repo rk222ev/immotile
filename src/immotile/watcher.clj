@@ -19,10 +19,10 @@
   "Start the file watcher and regenerate on change."
   [config]
   (swap! watcher (fn [x]
-                 (hawk/watch!
-                  [{:paths ["im-src/"]
-                    :context config
-                    :handler (partial handler config)}]))))
+                   (hawk/watch!
+                    [{:paths ["im-src/"]
+                      :context config
+                      :handler handler}]))))
 
 (defn stop
   "Stop the watcher."
