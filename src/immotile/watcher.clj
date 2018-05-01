@@ -119,8 +119,8 @@
   (condp #(%1 %2) file
       directory? nil
       post? (write-post config file)
-      page? nil #_(write-page (assoc config :posts @aposts) file)
-      template? nil #_(process-source-files config)
+      page? (write-page (assoc config :posts @aposts) file)
+      template? (process-source-files config)
       public? (copy-public-to-out (:out config) file)
       nil))
 
