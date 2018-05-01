@@ -72,7 +72,7 @@
           (generate-page
            (read-template-fn "im-src/templates/default.clj")
            page-data))
-    (dissoc (merge page-data {:link (str "posts/" filename ".html")}) :body)))
+    (dissoc (merge page-data {:link (str "posts/" date "-" filename ".html")}) :body)))
 
 (declare process-source-files) ;; Fix
 
