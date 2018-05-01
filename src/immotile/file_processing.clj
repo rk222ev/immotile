@@ -70,7 +70,11 @@
   [out-path file]
   (let [destination (str
                      out-path
+                     "/"
                      (-> (.getPath file)
+                         (str/split #"/")
+                         (rest)
+                         (->> (str/join "/"))
                          (str/replace "public/" "")))]
     (io/make-parents destination)
     (io/copy
