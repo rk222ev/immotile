@@ -10,7 +10,7 @@
 (defn- template? [file] (is-of-path #"/templates/" file))
 
 (defn handler
-  [config {file :file}]
+  [config _ {file :file}]
   (if (template? file)
     (process/all-files config)
     (process/single-file config file)))
@@ -21,8 +21,7 @@
   (swap! watcher (fn [x]
                    (hawk/watch!
                     [{:paths ["im-src/"]
-                      :context config
-                      :handler handler}]))))
+                      :handler (partial handler config)}]))))
 
 (defn stop
   "Stop the watcher."
