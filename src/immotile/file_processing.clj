@@ -27,7 +27,7 @@
   [template-fn data]
   (->> (template-fn data)
        (html)
-       (remove-newlines)
+       #_(remove-newlines) ;; TODO: Just removing will messup code blocks
        (str "<!doctype html>")))
 
 #_(defn- read-template-fn [path] (load-file path))
