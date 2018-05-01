@@ -74,18 +74,18 @@
            page-data))
     (dissoc (merge page-data {:link (str "posts/" date "-" filename ".html")}) :body)))
 
-(declare process-source-files) ;; Fix
+(declare process-all-files) ;; Fix
 
 (defonce ^:private aposts
   (atom {:posts []}))
 
-(defn- regenerate-file
+(defn- process-file
   [config {file :file kind :kind}]
   (condp #(%1 %2) file
     directory? nil
     post? (write-post config file)
     page? (write-page (assoc config :posts @aposts) file)
-    template? (process-source-files config)
+    template? (process-all-files config)
     public? (copy-public-to-out (:out config) file)
     nil))
 
@@ -101,7 +101,7 @@
 
 (defn- process-posts [config] (process-files config :posts write-post))
 
-(defn process-source-files
+(defn process-all-files
   [config]
   (let [posts (process-posts config)
         pages (process-pages config posts)
@@ -109,29 +109,18 @@
         files (->> (file-seq (io/file "im-src"))
                    (filter #(not (re-find (re-pattern (str/join "|" filter-files)) (.getPath %)))))]
     (reset! aposts posts)
-    (doall (pmap (fn [f] (when (.isFile f) (regenerate-file config {:file f}))) files))))
+    (doall (pmap (fn [f] (when (.isFile f) (process-file config {:file f}))) files))))
 
 (defonce ^:private state
   (atom {}))
 
-(defn- process-source-file
-  [config file]
-  (condp #(%1 %2) file
-      directory? nil
-      post? (write-post config file)
-      page? (write-page (assoc config :posts @aposts) file)
-      template? (process-source-files config)
-      public? (copy-public-to-out (:out config) file)
-      nil))
-
 (defn start-watcher
   "Start the file watcher and regenerate on change."
   [config]
-  (swap! state (fn
-                 [x]
+  (swap! state (fn [x]
                  (hawk/watch!
                   [{:paths ["im-src/"]
-                    :handler (fn [_ file] (process-source-file config (:file file)))}]))))
+                    :handler (fn [_ file] (process-file config file))}]))))
 
 (defn stop
   "Stop the watcher."
@@ -143,13 +132,13 @@
   when a file is changed."
   [config]
   (create-folders (:out config))
-  (process-source-files config)
+  (process-all-files config)
   (start-watcher config))
 
 (comment
   (process-posts {:out "out/"})
 
-  (process-source-files {:out "out/"})
+  (process-all-files {:out "out/"})
 
   (process-pages {:out "out/"} @aposts)
   )
