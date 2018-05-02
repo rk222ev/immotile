@@ -41,6 +41,15 @@
             (second)
             (str/trim))))
 
+(defn- filename-without-extension
+  "Returns the name of a `file`."
+  [^java.io.File file]
+  (-> file
+      .getName
+      (str/split #"\.")
+      drop-last
+      (->> (str/join "."))))
+
 (defn- read-org-settings
   [path]
   (with-open [rdr (clojure.java.io/reader path)]
@@ -49,7 +58,9 @@
 (defn convert
   [config file]
   (let [path (absolute-file-path file)
-        options (read-org-settings path)]
+        options (read-org-settings path)
+        date (first (find-date-option options)) ]
     {:body (:out (apply shell/sh (emacs-shell-command path)))
      :title (find-title-option options)
-     :date (first (find-date-option options))}))
+     :filename (str (when date (str date "-")) (filename-without-extension file))
+     :date date}))

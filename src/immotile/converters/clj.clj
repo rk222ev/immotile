@@ -6,6 +6,16 @@
 
 (defn read-fn-from-file [path] (load-file path))
 
+(defn- filename-without-extension
+  "Returns the name of a `file`."
+  [^java.io.File file]
+  (-> file
+      .getName
+      (str/split #"\.")
+      drop-last
+      (->> (str/join "."))))
+
 (defn convert [config file]
   (let [f (read-fn-from-file (.getPath file))]
-    {:body (f config)}))
+    {:body (f config)
+     :filename (filename-without-extension file)}))
