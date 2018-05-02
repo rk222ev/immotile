@@ -43,12 +43,12 @@
 
 (defn single-file
   [config file]
-  (condp #(%1 %2) file
-    directory? nil
-    post? (create-file config (assoc (c/convert config file) :type :post))
-    page? (create-file (assoc config :posts @all-posts) (c/convert (assoc config :posts @all-posts) file))
-    public? (copy-public-to-out (:out config) file)
-    nil))
+  (cond
+    (directory? file) nil
+    (post? file) (create-file config (assoc (c/convert config file) :type :post))
+    (page? file) (create-file (assoc config :posts @all-posts) (c/convert (assoc config :posts @all-posts) file))
+    (public? file) (copy-public-to-out (:out config) file)
+    :else nil))
 
 (defn- process-posts
   [config]
