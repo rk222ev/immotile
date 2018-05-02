@@ -30,8 +30,6 @@
        #_(remove-newlines) ;; TODO: Just removing will messup code blocks
        (str "<!doctype html>")))
 
-#_(defn- read-template-fn [path] (load-file path))
-
 (defn- write-post
   [config file]
   (let [page-data (c/convert config file)
