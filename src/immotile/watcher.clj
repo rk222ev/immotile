@@ -12,8 +12,13 @@
 (defn handler
   [config _ {file :file}]
   (if (template? file)
-    (process/all-files config)
-    (process/single-file config file)))
+    (do
+      (println "Regenerating all files...")
+      (time (process/all-files config))
+      )
+    (do
+      (println "Regenerating file " (.getPath file))
+      (time (process/single-file config file)))))
 
 (defn- start-watcher
   "Start the file watcher and regenerate on change."
@@ -32,6 +37,8 @@
   "Runs an initial file generation then launches a wather that regenerates
   when a file is changed."
   [config]
+  (println "Building initial files...")
   (.mkdirs (io/file (:out config)))
-  (process/all-files config)
+  (time (process/all-files config))
+  (println "Starting watcher...")
   (start-watcher config))

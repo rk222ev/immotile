@@ -20,9 +20,11 @@
 
 (defn start
   [config]
-  (let [s  (server/run-server
+  (let [port (:port config)
+        s (server/run-server
             (fn [req] (serve-static config req))
-            {:port (:port config)})]
+            {:port port})]
+    (println (str "Started webserver on port " port))
     (reset! state s)))
 
 
