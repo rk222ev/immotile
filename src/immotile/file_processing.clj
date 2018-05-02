@@ -59,9 +59,9 @@
 (defn all-files
   [config]
   (let [posts (process-posts config)
-        filter-files ["/templates/" "config.edn" "/posts/"]
+        paths-to-ignore (re-pattern (str/join "|" ["/templates/" "config.edn" "/posts/"]))
         files (->> (file-seq (io/file "im-src"))
-                   (filter #(not (re-find (re-pattern (str/join "|" filter-files)) (.getPath %))))
+                   (remove #(re-find paths-to-ignore (.getPath %)))
                    (filter #(.isFile %)))]
     (reset! all-posts posts)
-    (doall (pmap #(single-file config %) files))))
+    (doall (pmap (partial single-file config) files))))
