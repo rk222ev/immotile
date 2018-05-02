@@ -46,7 +46,7 @@
   (cond
     (directory? file) nil
     (post? file) (create-file config (assoc (c/convert config file) :type :post))
-    (page? file) (create-file (assoc config :posts @all-posts) (c/convert (assoc config :posts @all-posts) file))
+    (page? file) (create-file config (c/convert (assoc config :posts @all-posts) file))
     (public? file) (copy-public-to-out (:out config) file)
     :else nil))
 
