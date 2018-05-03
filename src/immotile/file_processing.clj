@@ -68,7 +68,8 @@
 
 (defn file
   [config file]
-  (if (template? file)
+  (if (or (template? file)
+          (directory? file))
     (do
       (println "Regenerating all files...")
       (time (all-files config)))
