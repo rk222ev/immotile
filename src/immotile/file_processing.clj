@@ -4,9 +4,6 @@
             [hiccup.core :refer [html]]
             [immotile.converters.core :as c]))
 
-(defonce ^:private all-posts
-  (atom {:posts []}))
-
 (defn create-file
   [config page-data]
   (let [type (:type page-data)
@@ -41,12 +38,14 @@
 (defn- post? [file] (is-of-path #"/posts/" file))
 (defn- page? [file] (is-of-path #"/pages/" file))
 
-(defn single-file
+(def posts (atom nil))
+
+(defn- single-file
   [config file]
   (cond
     (directory? file) nil
     (post? file) (create-file config (assoc (c/convert config file) :type :post))
-    (page? file) (create-file config (c/convert (assoc config :posts @all-posts) file))
+    (page? file) (create-file config (c/convert (assoc config :posts @posts) file))
     (public? file) (copy-public-to-out (:out config) file)
     :else nil))
 
@@ -58,10 +57,21 @@
 
 (defn all-files
   [config]
-  (let [posts (process-posts config)
-        paths-to-ignore (re-pattern (str/join "|" ["/templates/" "config.edn" "/posts/"]))
+  (let [paths-to-ignore (re-pattern (str/join "|" ["/templates/" "config.edn" "/posts/"]))
         files (->> (file-seq (io/file "im-src"))
                    (remove #(re-find paths-to-ignore (.getPath %)))
                    (filter #(.isFile %)))]
-    (reset! all-posts posts)
+    (reset! posts (process-posts config))
     (doall (pmap (partial single-file config) files))))
+
+(defn- template? [file] (is-of-path #"/templates/" file))
+
+(defn file
+  [config file]
+  (if (template? file)
+    (do
+      (println "Regenerating all files...")
+      (time (all-files config)))
+    (do
+      (println "Regenerating file " (.getPath file))
+      (time (single-file config file)))))
