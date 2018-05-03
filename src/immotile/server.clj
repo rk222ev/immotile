@@ -1,5 +1,6 @@
 (ns immotile.server
   (:require
+   [figwheel-sidecar.repl-api :as ra]
    [org.httpkit.server :as server]))
 
 (defonce ^:private state (atom {}))
@@ -18,7 +19,7 @@
     {:body body :headers headers}))
 
 
-(defn start
+#_(defn start
   [config]
   (let [port (:port config)
         s (server/run-server
@@ -29,3 +30,42 @@
 
 
 (defn stop [] (@state))
+
+
+#_(ra/stop-figwheel!)
+#_(start nil)
+#_(ra/cljs-repl "dev")
+
+(defn start
+  [config]
+  ;; this will start figwheel and will start autocompiling the builds specified in `:builds-ids`
+  (ra/start-figwheel!
+   {:figwheel-options {} ;; <-- figwheel server config goes here
+    :build-ids ["dev"] ;; <-- a vector of build ids to start autobuilding
+    :all-builds        ;; <-- supply your build configs here
+    [{:id "dev"
+      :figwheel true
+      :source-paths ["im-src/cljs/"]
+      :compiler {:main "example.core"
+                 :asset-path "js/out"
+                 :output-to "resources/public/js/example.js"
+                 :output-dir "resources/public/js/out"
+                 :verbose true}}]})
+  (ra/cljs-repl "dev"))
+
+;; you can also just call (ra/start-figwheel!)
+;; and figwheel will do its best to get your config from the
+;; project.clj or a figwheel.edn file
+
+;; start a ClojureScript REPL
+
+;; you can optionally supply a build id
+
+  ;; :cljsbuild {:builds [{:id "example"
+  ;;                       :source-paths ["im-src/cljs/"]
+  ;;                       :figwheel true
+  ;;                       :compiler {:main "example.core"
+  ;;                                  :asset-path "js/out"
+  ;;                                  :output-to "resources/public/js/example.js"
+  ;;                                  :output-dir "resources/public/js/out"
+  ;;                                  }}]}
