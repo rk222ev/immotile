@@ -7,7 +7,7 @@
   (atom {}))
 
 (defn- start-watcher
-  "Start the file watcher and regenerate on change."
+  "Takes a `config` and starts a file watcher that regenerates files on change."
   [config]
   (swap! watcher (fn [_]
                    (hawk/watch!
@@ -15,14 +15,13 @@
                       :handler (fn [_ {file :file}] (process/file config file))}]))))
 
 (defn stop
-  "Stop the watcher."
+  "Stops the watcher."
   []
   (hawk/stop! @watcher)
   (reset! watcher nil))
 
 (defn start
-  "Runs an initial file generation then launches a wather that regenerates
-  when a file is changed."
+  "Takes a `config`, runs an initial file generation and then launches a file watcher."
   [config]
   (println "Building initial files...")
   (.mkdirs (io/file (:out config)))
