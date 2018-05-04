@@ -1,12 +1,11 @@
-(ns immotile.fig
- (:require
- [figwheel-sidecar.components.figwheel-server :as server]
- [figwheel-sidecar.components.file-system-watcher :as fsw]
- [figwheel-sidecar.system :as sys]
- [figwheel-sidecar.utils :as utils]
- [com.stuartsierra.component :as component]
- [immotile.file-processing :as process]))
-
+(ns immotile.system
+  (:require
+   [figwheel-sidecar.components.figwheel-server :as server]
+   [figwheel-sidecar.components.file-system-watcher :as fsw]
+   [figwheel-sidecar.system :as sys]
+   [figwheel-sidecar.utils :as utils]
+   [com.stuartsierra.component :as component]
+   [immotile.file-processing :as process]))
 
 (def figwheel-config
   {:figwheel-options {}
@@ -46,23 +45,18 @@
 
 (defonce system (atom nil))
 
-
-(defn watcher
-  [figwheel-server]
-  (println figwheel-server)
-  (fsw/file-system-watcher
-   {:watcher-name "Regeneration watcher"
-    :watch-paths ["im-src"]
-    :log-writer *out*
-    :notification-handler (partial handle-regeneration {})}))
-
-
 (defn new-system
   [config]
   (reset! system
           (component/system-map
            :figwheel-server (sys/figwheel-system figwheel-config)
-           :regeneration-watcher (component/using (watcher) [:figwheel-server])
+           :regeneration-watcher (component/using
+                                  (fsw/file-system-watcher
+                                   {:watcher-name "Regeneration watcher"
+                                    :watch-paths ["im-src"]
+                                    :log-writer *out*
+                                    :notification-handler (partial handle-regeneration config)})
+                                  [:figwheel-server])
            :html-watcher (component/using
                           (fsw/file-system-watcher
                            {:watcher-name "HTML watcher"

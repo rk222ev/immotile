@@ -62,12 +62,13 @@
                    (remove #(re-find paths-to-ignore (.getPath %)))
                    (filter #(.isFile %)))]
     (reset! posts (process-posts config))
-    (doall (pmap (partial single-file config) files))))
+    (doall (map (partial single-file config) files))))
 
 (defn- template? [file] (is-of-path #"/templates/" file))
 
 (defn file
   [config file]
+  (println file)
   (if (or (template? file)
           (directory? file))
     (do
