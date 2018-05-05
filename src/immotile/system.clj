@@ -1,22 +1,34 @@
 (ns immotile.system
-  (:require
-   [figwheel-sidecar.components.figwheel-server :as server]
-   [figwheel-sidecar.components.file-system-watcher :as fsw]
-   [figwheel-sidecar.system :as sys]
-   [figwheel-sidecar.utils :as utils]
-   [com.stuartsierra.component :as component]
-   [immotile.file-processing :as process]
-   [clojure.java.io :as io]))
+  (:require [com.stuartsierra.component :as component]
+            [figwheel-sidecar.components.figwheel-server :as server]
+            [figwheel-sidecar.components.file-system-watcher :as fsw]
+            [figwheel-sidecar.system :as sys]
+            [figwheel-sidecar.utils :as utils]
+            [immotile.config :as c]
+            [immotile.file-processing :as process]))
+
+(defn serve-static [req]
+  (let [mime-types {".clj" "text/plain"
+                    ".mp4" "video/mp4"
+                    ".ogv" "video/ogg"}
+        uri (:uri req)
+        headers (if-let [mimetype (mime-types (re-find #"\..+$" uri))]
+                  {:headers {"Content-Type" mimetype}})
+        body (slurp (str (:out (c/config))
+                         (if (= "/" uri)
+                           "/index.html"
+                           uri)))]
+    {:body body :headers headers}))
 
 (def figwheel-config
-  {:figwheel-options {}
+  {:figwheel-options {:ring-handler serve-static}
    :build-ids ["dev"]
    :all-builds
    [{:id "dev"
      :figwheel true
      :source-paths ["im-src/cljs" "dev"]
      :compiler {:main "immotile.reload"
-                :asset-path "js/out"
+                :asset-path "/js/out"
                 :output-to "resources/public/js/example.js"
                 :output-dir "resources/public/js/out"
                 :verbose true}}]})
@@ -31,19 +43,13 @@
                        {:msg-name :html-files-changed
                         :files files}))
 
-(defn handle-notification [watcher files]
-  (when-let [changed-files (not-empty (filter #(.endsWith % ".html") (map str files)))]
-    (let [figwheel-server (:figwheel-server watcher)
-          sendable-files (map #(make-file %) changed-files)]
-      (send-files figwheel-server sendable-files))))
-
-
 (defn handle-regeneration
   [config watcher files]
-  (println files)
+(let [figwheel-server (:figwheel-server watcher)
+      sendable-files (map #(make-file %) files)]
   (doseq [f (remove #(boolean (re-find #"/cljs/" (.getPath %))) files)]
-    (do (println f)
-        (process/file config f))))
+    (do (process/file config f)
+        (send-files figwheel-server sendable-files)))))
 
 (defonce system (atom nil))
 
@@ -58,14 +64,7 @@
                                     :watch-paths ["im-src"]
                                     :log-writer *out*
                                     :notification-handler (partial handle-regeneration config)})
-                                  [:figwheel-server])
-           :html-watcher (component/using
-                          (fsw/file-system-watcher
-                           {:watcher-name "HTML watcher"
-                            :watch-paths ["resources/public"]
-                            :log-writer *out*
-                            :notification-handler handle-notification})
-                          [:figwheel-server]))))
+                                  [:figwheel-server]))))
 
 (defn start []
   (swap! system component/start))

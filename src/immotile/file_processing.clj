@@ -12,23 +12,16 @@
         dest (str (:out config) "/" sub-path)
         template-fn (load-file "im-src/templates/default.clj")]
      (io/make-parents (io/file dest))
+     (println dest)
      (spit dest (->> (template-fn page-data)
                      (html)
                      (str "<!doctype html>")))
      (merge (dissoc page-data :body) {:link sub-path})))
 
-(defn- destination
-  [file]
-  (-> (.getPath file)
-      (str/split #"/")
-      (rest)
-      (->> (str/join "/"))
-      (str/replace "public/" "")))
-
 (defn- copy-public-to-out
-  "Copies `file` to public folder in `out-path`."
+  "Copies `file` to `out-path`."
   [out-path file]
-  (let [dest (str out-path "/" (destination file))]
+  (let [dest (str out-path "/" (.getName file))]
     (io/make-parents dest)
     (io/copy file (io/file dest))))
 
@@ -38,7 +31,7 @@
 (defn- post? [file] (is-of-path #"/posts/" file))
 (defn- page? [file] (is-of-path #"/pages/" file))
 
-(def posts (atom nil))
+(defonce posts (atom nil))
 
 (defn- single-file
   [config file]
@@ -68,12 +61,8 @@
 
 (defn file
   [config file]
-  (println "processing" file)
-  (if (or (template? file)
-          (directory? file))
-    (do
-      (println "Regenerating all files...")
-      (time (all-files config)))
-    (do
-      (println "Regenerating file " (.getPath file))
-      (time (single-file config file)))))
+  (if (or (template? file) (directory? file))
+    (do (println "Regenerating all files...")
+        (time (all-files config)))
+    (do (println "Regenerating file " (.getPath file))
+        (time (single-file config file)))))
