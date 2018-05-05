@@ -68,7 +68,7 @@
 
 (defn file
   [config file]
-  (println file)
+  (println "processing" file)
   (if (or (template? file)
           (directory? file))
     (do

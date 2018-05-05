@@ -5,7 +5,8 @@
    [figwheel-sidecar.system :as sys]
    [figwheel-sidecar.utils :as utils]
    [com.stuartsierra.component :as component]
-   [immotile.file-processing :as process]))
+   [immotile.file-processing :as process]
+   [clojure.java.io :as io]))
 
 (def figwheel-config
   {:figwheel-options {}
@@ -36,12 +37,13 @@
           sendable-files (map #(make-file %) changed-files)]
       (send-files figwheel-server sendable-files))))
 
+
 (defn handle-regeneration
   [config watcher files]
-  (->> files
-      (filter #(re-find #"/cljs/" (.getPath %)))
-      (first)
-      (partial process/file config)))
+  (println files)
+  (doseq [f (remove #(boolean (re-find #"/cljs/" (.getPath %))) files)]
+    (do (println f)
+        (process/file config f))))
 
 (defonce system (atom nil))
 

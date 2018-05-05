@@ -46,23 +46,18 @@
 
 (defonce system (atom nil))
 
-
-(defn watcher
-  [figwheel-server]
-  (println figwheel-server)
-  (fsw/file-system-watcher
-   {:watcher-name "Regeneration watcher"
-    :watch-paths ["im-src"]
-    :log-writer *out*
-    :notification-handler (partial handle-regeneration {})}))
-
-
 (defn new-system
   [config]
   (reset! system
           (component/system-map
            :figwheel-server (sys/figwheel-system figwheel-config)
-           :regeneration-watcher (component/using (watcher) [:figwheel-server])
+           :regeneration-watcher (component/using
+                                  (fsw/file-system-watcher
+                                   {:watcher-name "Regeneration watcher"
+                                    :watch-paths ["im-src"]
+                                    :log-writer *out*
+                                    :notification-handler (partial handle-regeneration config)})
+                                  [:figwheel-server])
            :html-watcher (component/using
                           (fsw/file-system-watcher
                            {:watcher-name "HTML watcher"
