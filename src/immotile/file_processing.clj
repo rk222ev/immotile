@@ -55,7 +55,7 @@
                    (remove #(re-find paths-to-ignore (.getPath %)))
                    (filter #(.isFile %)))]
     (reset! posts (process-posts config))
-    (doall (map (partial single-file config) files))))
+    (doall (pmap (partial single-file config) files))))
 
 (defn- template? [file] (is-of-path #"/templates/" file))
 
