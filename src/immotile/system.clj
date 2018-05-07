@@ -30,7 +30,7 @@
                             :asset-path "/js/out"
                             :output-to "resources/public/js/example.js"
                             :output-dir "resources/public/js/out"
-                            :verbose true}}]})
+                            :verbose true}}]}})
 
 (defn make-file [path]
   {:file (utils/remove-root-path path)
