@@ -1,19 +1,20 @@
 * Immotile
 
-Build static sites using Emacs org-mode and Clojure.
+Build static sites using Emacs, org-mode and Clojure(script).
 
 Heavily inspired by [[https://github.com/nakkaya/static][Static]].
 
-Under heavy development.
+Under development.
 
-** TODO Features
+** Features
 - [X] Convert org to html
 - [X] Use Clojure code to generate templates using Hiccup
 - [X] Watch and generate html files on changes
 - [ ] Create a proper archive organizing post after date from org file
 - [ ] Create Css from Clojure (Garden, CljsCss?)
-- [ ] Add support for Clojurescript
-- [ ] Reload the browser if any html changes (Figwheel?)
+- [X] Add support for Clojurescript
+- [X] Reload the browser if any html changes (Figwheel?)
+- [ ] Actually use the config
 
 ** Installation
 
