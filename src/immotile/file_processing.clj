@@ -12,7 +12,6 @@
         dest (str (:out config) "/" sub-path)
         template-fn (load-file "im-src/templates/default.clj")]
      (io/make-parents (io/file dest))
-     (println dest)
      (spit dest (->> (template-fn page-data)
                      (html)
                      (str "<!doctype html>")))
