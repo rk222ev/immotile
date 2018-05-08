@@ -1,5 +1,4 @@
 (ns immotile.core
-  (:gen-class)
   (:require [cljs.build.api :as cljs]
             [clojure.core.async :as a :refer [<!! thread]]
             [immotile.config :refer [config]]
