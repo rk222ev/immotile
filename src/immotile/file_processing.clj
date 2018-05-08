@@ -64,8 +64,10 @@
                               (remove #(re-find paths-to-ignore (.getPath %))))
                         (file-seq (io/file "im-src")))]
     (reset! posts (process-posts config))
-    (doseq [file files]
-      (thread (single-file config file)))))
+    (mapv <!!
+          (sequence
+           (comp (map #(thread (single-file config %))))
+           files))))
 
 (defn- template? [file] (is-of-path #"/templates/" file))
 
