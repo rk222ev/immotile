@@ -13,10 +13,8 @@
   [& args]
   (let [c (config)]
     (case (keyword (first args))
-      :build-prod (let [a (thread (process/all-files c))
-                        b (thread (cljs/build "im-src/cljs/" opts))]
-                    (<!! a)
-                    (<!! b))
+      :build-prod (mapv <!! [(thread (process/all-files c))
+                             (thread (cljs/build "im-src/cljs/" opts))])
       :dev (do
              (thread (process/all-files c))
              (system/new-system c)

@@ -1,5 +1,6 @@
 (ns immotile.file-processing
-  (:require [clojure.java.io :as io]
+  (:require [clojure.core.async :as async :refer [<!! thread]]
+            [clojure.java.io :as io]
             [clojure.string :as str]
             [hiccup.core :refer [html]]
             [immotile.converters.core :as c]))
@@ -16,6 +17,14 @@
                      (html)
                      (str "<!doctype html>")))
      (merge (dissoc page-data :body) {:link sub-path})))
+
+(defn create-post
+  [config file]
+  (create-file config (assoc (c/convert config file) :type :post)))
+
+(defn create-page
+  [config posts file]
+  (create-file config (c/convert (assoc config :posts posts) file)))
 
 (defn- copy-public-to-out
   "Copies `file` to `out-path`."
@@ -34,27 +43,29 @@
 
 (defn- single-file
   [config file]
-  (cond
-    (directory? file) nil
-    (post? file) (create-file config (assoc (c/convert config file) :type :post))
-    (page? file) (create-file config (c/convert (assoc config :posts @posts) file))
-    (public? file) (copy-public-to-out (:out config) file)
-    :else nil))
+  (condp #(%1 %2) file
+    post? (create-post config file)
+    page? (create-page config @posts file)
+    public? (copy-public-to-out (:out config) file)
+    nil))
 
 (defn- process-posts
   [config]
-  (let [files (->> (file-seq (io/file "im-src/posts/"))
-                   (filter #(.isFile %)))]
-    (doall (pmap (fn [file] (create-file config (assoc (c/convert config file) :type :post))) files))))
+  (sequence
+   (comp (filter #(.isFile %))
+         (map #(thread (create-post config %)))
+         (map <!!))
+   (file-seq (io/file "im-src/posts"))))
 
 (defn all-files
   [config]
   (let [paths-to-ignore (re-pattern (str/join "|" ["/templates/" "config.edn" "/posts/"]))
-        files (->> (file-seq (io/file "im-src"))
-                   (remove #(re-find paths-to-ignore (.getPath %)))
-                   (filter #(.isFile %)))]
+        files (sequence (comp (filter #(.isFile %))
+                              (remove #(re-find paths-to-ignore (.getPath %))))
+                        (file-seq (io/file "im-src")))]
     (reset! posts (process-posts config))
-    (doall (pmap (partial single-file config) files))))
+    (doseq [file files]
+      (thread (single-file config file)))))
 
 (defn- template? [file] (is-of-path #"/templates/" file))
 
