@@ -20,8 +20,9 @@
                            uri)))]
     {:body body :headers headers}))
 
+
 (def figwheel-config
-  {:figwheel-options {:ring-handler serve-static
+  {:figwheel-options {:ring-handler serve-static}
    :build-ids ["dev"]
    :all-builds [{:id "dev"
                  :figwheel true
@@ -30,7 +31,7 @@
                             :asset-path "/js/out"
                             :output-to "resources/public/js/example.js"
                             :output-dir "resources/public/js/out"
-                            :verbose true}}]}})
+                            :verbose true}}]})
 
 (defn make-file [path]
   {:file (utils/remove-root-path path)
