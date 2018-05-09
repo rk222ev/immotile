@@ -14,7 +14,9 @@ Under development.
 - [ ] Create Css from Clojure (Garden, CljsCss?)
 - [X] Add support for Clojurescript
 - [X] Reload the browser if any html changes (Figwheel?)
-- [ ] Actually use the config
+- [X] Actually use the config
+- [ ] Move all configs to config.edn
+- [ ] Spec the config
 
 ** Installation
 
