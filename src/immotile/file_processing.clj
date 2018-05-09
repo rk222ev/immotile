@@ -11,7 +11,7 @@
         sub-path (str (when type (str (name type) "/"))
                       (:filename page-data) ".html")
         dest (str (:out config) "/" sub-path)
-        template-fn (load-file "im-src/templates/default.clj")]
+        template-fn (load-file (str (:src config) "/templates/" (:template config)))]
      (io/make-parents (io/file dest))
      (spit dest (->> (template-fn page-data)
                      (html)
@@ -55,14 +55,14 @@
    (comp (filter #(.isFile %))
          (map #(thread (create-post config %)))
          (map <!!))
-   (file-seq (io/file "im-src/posts"))))
+   (file-seq (io/file (str (:src config) "/posts")))))
 
 (defn all-files
   [config]
   (let [paths-to-ignore (re-pattern (str/join "|" ["/templates/" "config.edn" "/posts/"]))
         files (sequence (comp (filter #(.isFile %))
                               (remove #(re-find paths-to-ignore (.getPath %))))
-                        (file-seq (io/file "im-src")))]
+                        (file-seq (io/file (:src config))))]
     (reset! posts (process-posts config))
     (mapv <!!
           (sequence

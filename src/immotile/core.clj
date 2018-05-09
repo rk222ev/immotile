@@ -3,17 +3,25 @@
             [clojure.core.async :as a :refer [<!! thread]]
             [immotile.config :refer [config]]
             [immotile.file-processing :as process]
-            [immotile.system :as system]))
+            [immotile.system :as system]
+            [clojure.java.io :as io]))
 
 (def opts {:optimizations :advanced
-           :output-to "resources/public/js/example.js"})
+           :output-dir "im-out"
+           :output-to (str (:out (config)) "/js/example.js")})
+
+(defn delete-folder
+  [path]
+  (doseq [f (reverse (file-seq (clojure.java.io/file path)))]
+     (io/delete-file f)))
 
 (defn -main
   [& args]
   (let [c (config)]
     (case (keyword (first args))
-      :build-prod (mapv <!! [(thread (process/all-files c))
-                             (thread (cljs/build "im-src/cljs/" opts))])
+      :build-prod (do (mapv <!! [(thread (process/all-files c))
+                                 (thread (cljs/build (str (:src c) "/cljs/") opts))])
+                      (delete-folder (:output-dir opts)))
       :dev (do
              (thread (process/all-files c))
              (system/new-system c)

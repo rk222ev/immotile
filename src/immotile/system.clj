@@ -21,16 +21,17 @@
     {:body body :headers headers}))
 
 
-(def figwheel-config
+(defn figwheel-config
+  [config]
   {:figwheel-options {:ring-handler serve-static}
    :build-ids ["dev"]
    :all-builds [{:id "dev"
                  :figwheel true
-                 :source-paths ["im-src/cljs" "dev"]
+                 :source-paths [(str (:src config) "/cljs") "dev"]
                  :compiler {:main "immotile.reload"
                             :asset-path "/js/out"
-                            :output-to "resources/public/js/example.js"
-                            :output-dir "resources/public/js/out"
+                            :output-to (str (:out config) "/js/example.js")
+                            :output-dir (str (:out config) "/js/out")
                             :verbose true}}]})
 
 (defn make-file [path]
@@ -57,11 +58,11 @@
   [config]
   (reset! system
           (component/system-map
-           :figwheel-server (sys/figwheel-system figwheel-config)
+           :figwheel-server (sys/figwheel-system (figwheel-config config))
            :regeneration-watcher (component/using
                                   (fsw/file-system-watcher
                                    {:watcher-name "Regeneration watcher"
-                                    :watch-paths ["im-src"]
+                                    :watch-paths [(:src config)]
                                     :log-writer *out*
                                     :notification-handler (partial handle-regeneration config)})
                                   [:figwheel-server]))))
