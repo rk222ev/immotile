@@ -27,7 +27,7 @@
    :build-ids ["dev"]
    :all-builds [{:id "dev"
                  :figwheel true
-                 :source-paths [(str (:src config) "/cljs") "src"]
+                 :source-paths [(str (:src config) "/cljs") "dev"]
                  :compiler {:main "immotile.reload"
                             :asset-path "/js/out"
                             :output-to (str (:out config) "/js/example.js")
