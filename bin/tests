@@ -1,0 +1,1 @@
+clj -Atest -J--add-modules -Jjava.xml.bind
