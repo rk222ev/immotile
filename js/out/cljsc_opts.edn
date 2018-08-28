@@ -1,0 +1,1 @@
+{:main "immotile.reload", :asset-path "/js/out", :output-to "out/js/example.js", :output-dir "out/js/out", :verbose true, :optimizations :none, :source-map-timestamp true, :preloads [figwheel.connect], :external-config #:figwheel{:config {:build-id "dev", :websocket-url "ws://localhost:3449/figwheel-ws"}}}
