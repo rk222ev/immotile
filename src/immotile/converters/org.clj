@@ -59,8 +59,11 @@
   [config file]
   (let [path (absolute-file-path file)
         options (read-org-settings path)
-        date (first (find-date-option options)) ]
-    {:body (:out (apply shell/sh (emacs-shell-command path)))
-     :title (find-title-option options)
-     :filename (str (when date (str date "-")) (filename-without-extension file))
-     :date date}))
+        date (first (find-date-option options))]
+    (let [result (apply shell/sh (emacs-shell-command path))]
+      (when (= 255 (:exit result))
+        (println "Emacs failed to export org file." (:err result)))
+      {:body (:out result)
+       :title (find-title-option options)
+       :filename (str (when date (str date "-")) (filename-without-extension file))
+       :date date})))
