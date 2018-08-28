@@ -1,26 +1,26 @@
-<!doctype html><html><head><meta charset="UTF-8" /><meta content="ie=edge" http-equiv="x-ua-compatible" /><meta content="font-src https://cdn.rawgit.com;" http-equiv="content-security-policy" /><meta content="" name="description" /><meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" /><title>Immotile - Manual</title><link href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css" rel="stylesheet" type="text/css" /><link href="/default.css" rel="stylesheet" type="text/css" /></head><body><div id="wrap"><div id="header"><h1><a href="immotile/index.html">Immotile</a></h1><div id="navigation"><ul><li><a href="/manual.html">Manual</a></li><li><a href="/getting-started.html">Getting started</a></li><li><a href="https://www.github.com/rpkarlsson/immotile">Github</a></li></ul></div></div><div class="content"></div><h1>Manual</h1><div id="table-of-contents">
+<!doctype html><html><head><meta charset="UTF-8" /><meta content="ie=edge" http-equiv="x-ua-compatible" /><meta content="font-src https://cdn.rawgit.com;" http-equiv="content-security-policy" /><meta content="" name="description" /><meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" /><title>Immotile - Manual</title><link href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css" rel="stylesheet" type="text/css" /><link href="/immotile/default.css" rel="stylesheet" type="text/css" /></head><body><div id="wrap"><div id="header"><h1><a href="immotile/index.html">Immotile</a></h1><div id="navigation"><ul><li><a href="/manual.html">Manual</a></li><li><a href="/getting-started.html">Getting started</a></li><li><a href="https://www.github.com/rpkarlsson/immotile">Github</a></li></ul></div></div><div class="content"></div><h1>Manual</h1><div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org90c1d24">Tradeoffs</a></li>
-<li><a href="#orgf7f66ed">Clojure</a>
+<li><a href="#org3fe2a58">Tradeoffs</a></li>
+<li><a href="#orgfe146cd">Clojure</a>
 <ul>
-<li><a href="#orgf9368ed">Example .clj page</a></li>
+<li><a href="#orge337f7f">Example .clj page</a></li>
 </ul>
 </li>
-<li><a href="#org36a9ef7">Clojurescript</a></li>
-<li><a href="#org18e82b5">Org mode</a></li>
-<li><a href="#orge1fad36">Posts</a></li>
-<li><a href="#org5b73733">Style</a></li>
-<li><a href="#orgade9f7d">Starting the development server</a></li>
-<li><a href="#orgaee3498">Building for production</a></li>
+<li><a href="#org3346e13">Clojurescript</a></li>
+<li><a href="#orgc91ab88">Org mode</a></li>
+<li><a href="#orga2a3e13">Posts</a></li>
+<li><a href="#orgca476d9">Style</a></li>
+<li><a href="#orga04b920">Starting the development server</a></li>
+<li><a href="#org9935e93">Building for production</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org90c1d24" class="outline-2">
-<h2 id="org90c1d24">Tradeoffs</h2>
-<div class="outline-text-2" id="text-org90c1d24">
+<div id="outline-container-org3fe2a58" class="outline-2">
+<h2 id="org3fe2a58">Tradeoffs</h2>
+<div class="outline-text-2" id="text-org3fe2a58">
 <p>
    Immotile is not quick. Using Emacs to generate html takes time. So the initial
 and production builds are slow. Hopefully that is compensated with auto- and hot reloading
@@ -30,9 +30,9 @@ changes after this.
 </div>
 
 
-<div id="outline-container-orgf7f66ed" class="outline-2">
-<h2 id="orgf7f66ed">Clojure</h2>
-<div class="outline-text-2" id="text-orgf7f66ed">
+<div id="outline-container-orgfe146cd" class="outline-2">
+<h2 id="orgfe146cd">Clojure</h2>
+<div class="outline-text-2" id="text-orgfe146cd">
 <p>
    Used by naminghe a file <code>.clj</code>. Works just like regular Clojure. Require any additional
 dependencies from the classpath with: <code>(require '[clojure.string :as str])</code>.
@@ -41,9 +41,9 @@ hiccup.
 </p>
 </div>
 
-<div id="outline-container-orgf9368ed" class="outline-3">
-<h3 id="orgf9368ed">Example .clj page</h3>
-<div class="outline-text-3" id="text-orgf9368ed">
+<div id="outline-container-orge337f7f" class="outline-3">
+<h3 id="orge337f7f">Example .clj page</h3>
+<div class="outline-text-3" id="text-orge337f7f">
 <pre class="example">
 # (require '[clojure.string :as str])
 (fn [data]
@@ -57,9 +57,9 @@ hiccup.
 </div>
 
 
-<div id="outline-container-org36a9ef7" class="outline-2">
-<h2 id="org36a9ef7">Clojurescript</h2>
-<div class="outline-text-2" id="text-org36a9ef7">
+<div id="outline-container-org3346e13" class="outline-2">
+<h2 id="org3346e13">Clojurescript</h2>
+<div class="outline-text-2" id="text-org3346e13">
 <p>
    Place your Clojurescript source files inside the cljs folder inside the folder chosen as <code>:out</code> in
 the config.
@@ -80,9 +80,9 @@ Otherwise Clojurescript works as usual.
 </div>
 
 
-<div id="outline-container-org18e82b5" class="outline-2">
-<h2 id="org18e82b5">Org mode</h2>
-<div class="outline-text-2" id="text-org18e82b5">
+<div id="outline-container-orgc91ab88" class="outline-2">
+<h2 id="orgc91ab88">Org mode</h2>
+<div class="outline-text-2" id="text-orgc91ab88">
 <p>
    Files are generated using Emacs so it needs to be on your <code>$Path</code>. Should support all the
 usual org mode functionality that's available when exporting from Emacs.
@@ -93,9 +93,9 @@ of the rest of the website.
 </div>
 
 
-<div id="outline-container-orge1fad36" class="outline-2">
-<h2 id="orge1fad36">Posts</h2>
-<div class="outline-text-2" id="text-orge1fad36">
+<div id="outline-container-orga2a3e13" class="outline-2">
+<h2 id="orga2a3e13">Posts</h2>
+<div class="outline-text-2" id="text-orga2a3e13">
 <p>
 Needs to have a date and a title attached to the meta. Should return the following:
 </p>
@@ -108,9 +108,9 @@ Needs to have a date and a title attached to the meta. Should return the followi
 </div>
 
 
-<div id="outline-container-org5b73733" class="outline-2">
-<h2 id="org5b73733">Style</h2>
-<div class="outline-text-2" id="text-org5b73733">
+<div id="outline-container-orgca476d9" class="outline-2">
+<h2 id="orgca476d9">Style</h2>
+<div class="outline-text-2" id="text-orgca476d9">
 <p>
 Add a <code>.css</code> file to the <code>source/public</code> folder, will be moved to the root of the build.
 </p>
@@ -122,9 +122,9 @@ Add a <code>.css</code> file to the <code>source/public</code> folder, will be m
 </div>
 
 
-<div id="outline-container-orgade9f7d" class="outline-2">
-<h2 id="orgade9f7d">Starting the development server</h2>
-<div class="outline-text-2" id="text-orgade9f7d">
+<div id="outline-container-orga04b920" class="outline-2">
+<h2 id="orga04b920">Starting the development server</h2>
+<div class="outline-text-2" id="text-orga04b920">
 <p>
 Invoke immotile.core/-main with <code>dev</code> as the argument.
 </p>
@@ -139,9 +139,9 @@ $ clj -J--add-modules -Jjava.xml.bind -m immotile.core dev
 </div>
 
 
-<div id="outline-container-orgaee3498" class="outline-2">
-<h2 id="orgaee3498">Building for production</h2>
-<div class="outline-text-2" id="text-orgaee3498">
+<div id="outline-container-org9935e93" class="outline-2">
+<h2 id="org9935e93">Building for production</h2>
+<div class="outline-text-2" id="text-org9935e93">
 <p>
 Invoke immotile.core/-main with <code>build-prod</code> as the argument.
 </p>
