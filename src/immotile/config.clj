@@ -2,14 +2,17 @@
   (:require
    [clojure.edn :as edn]))
 
+(def c (edn/read-string (slurp "config.edn")))
 
 (defn config
   []
-  (edn/read-string (slurp "config.edn")))
+  c)
+
+(defn base-path []
+  (str (:base-path c) ""))
 
 
-
-;; {:out "resources/public"
-;;  :template "default.clj"
-;;  :src "im-src"
-;;  :port 8080}
+;; {:out "out"
+;;  :project-ns "example"
+;;  :src "src"
+;;  :template "default.clj"}
