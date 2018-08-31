@@ -10,17 +10,17 @@
 
 (defn delete-folder
   [path]
-  (doseq [f (reverse (file-seq (clojure.java.io/file path)))]
+  (doseq [f (reverse (file-seq (io/file path)))]
      (io/delete-file f)))
 
 (defn run-build-prod
   [{src :src out :out :as conf}]
-  (mapv <!! [(thread (process/all-files conf))
-                  (thread (cljs/build (str src "/cljs/")
-                                      {:optimizations :advanced
-                                       :output-dir out
-                                       :output-to (str out "js/main.js")}))])
-  (delete-folder (:output-dir out)))
+  (mapv <!! [(thread (process/all-files (assoc conf :out "build")))
+             (thread (cljs/build (str src "/cljs/")
+                                 {:optimizations :advanced
+                                  :output-dir out
+                                  :output-to (str "build/" "js/main.js")}))])
+  (delete-folder out))
 
 (defn run-dev
   [conf]
