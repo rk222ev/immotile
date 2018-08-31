@@ -2,14 +2,15 @@
   (:require
    [clojure.edn :as edn]))
 
-(def c (edn/read-string (slurp "config.edn")))
+(defn c []
+  (edn/read-string (slurp "config.edn")))
 
 (defn config
   []
-  c)
+  (c))
 
 (defn base-path []
-  (str (:base-path c) ""))
+  (str (:base-path (c)) ""))
 
 
 ;; {:out "out"

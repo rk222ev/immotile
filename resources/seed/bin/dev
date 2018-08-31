@@ -1,0 +1,1 @@
+clj -J--add-modules -Jjava.xml.bind -m immotile.core dev

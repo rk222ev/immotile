@@ -17,18 +17,26 @@ Under development.
 - [X] Actually use the config
 - [ ] Move all configs to config.edn
 - [ ] Spec the config
+- [ ] Add init command
 
-** Installation
+** Getting started
+Create a project skeleton with the command:
+#+BEGIN_SRC Shell
+clj -J--add-modules -Jjava.xml.bind -m immotile.core init <MY PROJECT-NAME>
+#+END_SRC
 
-** Usage
+Feel free to drop the -J arguments if your not using Java 9.
 
-FIXME: explanation
-
-    $ java -jar immotile-0.1.0-standalone.jar [args]
+To start immotile in development mode run the command:
+#+BEGIN_SRC Shell
+clj -J--add-modules -Jjava.xml.bind -m immotile.core dev
+#+END_SRC
 
 ** Options
 
-FIXME: listing of options this app accepts.
+   - Init <name> : Creates a project skeleton
+   - dev         : Start immotile in development mode.
+   - build-prod  : Compiles the source files using advanced optimizations.
 
 ** Examples
 

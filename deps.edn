@@ -1,4 +1,5 @@
-{:deps {com.bhauman/rebel-readline {:mvn/version "0.1.1"}
+{:paths ["src" "resources"]
+ :deps {com.bhauman/rebel-readline {:mvn/version "0.1.1"}
         com.stuartsierra/component {:mvn/version "0.3.2"}
         figwheel-sidecar {:mvn/version "0.5.15"}
         hiccup {:mvn/version "1.0.5"}
