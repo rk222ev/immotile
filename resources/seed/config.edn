@@ -1,0 +1,4 @@
+{:out "out"
+ :project-ns "=PROJECT-NS="
+ :src "src"
+ :template "default.clj"}

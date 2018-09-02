@@ -9,17 +9,17 @@
 (defn- make-src-subfolders
   [project-name]
   (doseq [folder ["cljs" (str "cljs/" project-name) "pages" "posts" "public" "templates"]]
-    (.mkdir (io/file "src" folder))))
+    (.mkdir (io/file project-name "src" folder))))
 
 (defn- process-seed-files
   [project-name files]
   (doseq [file files]
-    (let [src-path (-> (.getCanonicalPath file)
+    (let [src-project-path (-> (.getCanonicalPath file)
                        (str/split #"resources/seed/")
                        (second)
                        (str/replace ns-placeholder project-name))
           processed-seed (-> (slurp file) (str/replace ns-placeholder project-name))]
-      (spit (io/file src-path) processed-seed))))
+      (spit (io/file project-name src-project-path) processed-seed))))
 
 (defn- make-files
   [project-name]
@@ -37,8 +37,8 @@
 
 (defn make-project
   [project-name]
-  (make-folder "src")
-  #_(make-folder (str project-name "/src"))
+  (make-folder project-name)
+  (make-folder (str project-name "/src"))
   (make-src-subfolders project-name)
   (make-files project-name)
-  #_(make-config-files project-name))
+  (make-config-files project-name))

@@ -1,0 +1,4 @@
+{:deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
+        immotile {:local/root "../immotile"}}
+ :aliases {:dev {:main-opts ["-m" "immotile.core" "dev"]}
+           :build {:main-opts ["-m" "immotile.core" "build-prod"]}}}
