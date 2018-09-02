@@ -22,14 +22,25 @@ Under development.
 ** Getting started
 Create a project skeleton with the command:
 #+BEGIN_SRC Shell
-clj -J--add-modules -Jjava.xml.bind -m immotile.core init <MY PROJECT-NAME>
+clj -Sdeps '{:deps
+              {rpkarlsson/immotile
+                {:git/url "https://github.com/rpkarlsson/immotile"
+                 :sha "c46d364d2c78341bca7c400957eb0bef7794f754"}}}' \
+  -m immotile.core \
+  init <my-project-name>
 #+END_SRC
 
-Feel free to drop the -J arguments if your not using Java 9.
+This will create a folder named my-project-name which has to be a valid
+Clojure namespace.
 
 To start immotile in development mode run the command:
 #+BEGIN_SRC Shell
-clj -J--add-modules -Jjava.xml.bind -m immotile.core dev
+clj -A:dev
+#+END_SRC
+
+To build a production build run the command:
+#+BEGIN_SRC shell
+clj -A:build
 #+END_SRC
 
 ** Options
