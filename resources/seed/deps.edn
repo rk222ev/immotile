@@ -1,4 +1,6 @@
 {:deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
-        immotile {:local/root "../immotile"}}
+        {rpkarlsson/immotile
+         {:git/url "https://github.com/rpkarlsson/immotile"
+          :sha "dc52e91648e00f6c34c32bfee8ccba54fa00efb8"}}}}
  :aliases {:dev {:main-opts ["-m" "immotile.core" "dev"]}
            :build {:main-opts ["-m" "immotile.core" "build-prod"]}}}
