@@ -25,7 +25,7 @@ Create a project skeleton with the command:
 clj -Sdeps '{:deps
               {rpkarlsson/immotile
                 {:git/url "https://github.com/rpkarlsson/immotile"
-                 :sha "d99e9990bc34b91764d71b980ed3c8b05fcb97d9"}}}' \
+                 :sha "584d3a0faa0d2480c07feb21b02d5d4821cf70d4"}}}' \
   -m immotile.core \
   init <my-project-name>
 #+END_SRC
