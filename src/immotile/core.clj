@@ -36,9 +36,8 @@
 
 (defn -main
   [& args]
-  (let [c (config)]
-    (case (keyword (first args))
-      :build-prod (run-build-prod c)
-      :dev (run-dev c)
-      :init (run-init (second args))
-      (println "Valid args are build-prod, dev or init"))))
+  (case (keyword (first args))
+    :build-prod (run-build-prod (config))
+    :dev (run-dev (config))
+    :init (run-init (second args))
+    (println "Valid args are build-prod, dev or init")))
