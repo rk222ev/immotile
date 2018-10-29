@@ -7,10 +7,18 @@
 
 (def ^:private org-export-command
   `(~'progn
+    ~'(require 'package)
+    ~'(package-initialize)
+    ~'(set-face-foreground 'font-lock-string-face "#afafff")
+    ~'(set-face-foreground 'font-lock-keyword-face "#a71d5d")
+    ~'(set-face-foreground 'font-lock-function-name-face "#795da3")
+    ~'(set-face-foreground 'font-lock-builtin-face "#a71d5d")
+    ~'(set-face-foreground 'font-lock-comment-face "#969896")
+    ~'(set-face-underline 'font-lock-type-face nil)
+    ~'(set-face-underline 'font-lock-constant-face nil)
     (~'org-html-export-as-html nil nil nil ~'t nil)
     (~'with-current-buffer "*Org HTML Export*"
      (~'princ (~'org-no-properties (~'buffer-string))))))
-
 
 (defn- elisp-sexp
   [absolute-path]
@@ -19,8 +27,9 @@
      (~'find-file ~absolute-path)
      ~org-export-command)))
 
-
-(defn- emacs-shell-command [absolute-path] ["emacs" "-batch" "-eval" (elisp-sexp absolute-path)])
+(defn- emacs-shell-command
+  [absolute-path]
+  ["emacs" "-batch" "-eval" (elisp-sexp absolute-path)])
 
 (defn- absolute-file-path [path] (.getAbsolutePath (io/file path)))
 
