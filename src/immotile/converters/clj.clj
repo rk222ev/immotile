@@ -17,5 +17,6 @@
 
 (defn convert [config file]
   (let [f (read-fn-from-file (.getPath file))]
-    {:body (f config)
-     :filename (filename-without-extension file)}))
+    (merge
+     {:filename (filename-without-extension file)}
+     (f config))))

@@ -8,5 +8,12 @@
   (fn [config ^java.io.File file]
     (keyword (last (str/split (.getAbsolutePath file) #"\.")))))
 
+;; Posts should always return:
+;; {:body
+;;  :title
+;;  :filename
+;;  :date }
+;; Perhaps spec it?
+
 (defmethod convert :org [config file] (org/convert config file))
 (defmethod convert :clj [config file] (clj/convert config file))

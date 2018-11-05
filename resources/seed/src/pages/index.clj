@@ -1,8 +1,8 @@
 (require '[clojure.string :as str])
 
-(fn
-  [{posts :posts}]
-  [:div
+(defn body
+  [posts]
+ [:div
    [:h1 "=PROJECT-NS="]
    [:p (str "Welcome to your project!"
             "Enjoy...")]
@@ -10,4 +10,8 @@
    [:div
     [:ul
      (for [p posts]
-       [:li [:a {:href (:link p)} (str (:date p) " - " (:title p))]])]]])
+       [:li [:a {:href (:link p)} (str (:date p) " - " (:title p))]])]]] )
+
+(fn
+  [{posts :posts}]
+  {:body (body posts)})

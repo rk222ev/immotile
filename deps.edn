@@ -2,7 +2,7 @@
  :deps {com.stuartsierra/component {:mvn/version "0.3.2"}
         figwheel-sidecar {:mvn/version "0.5.16"}
         hiccup {:mvn/version "1.0.5"}
-        org.clojure/clojure {:mvn/version "1.9.0"}
+        org.clojure/clojure {:mvn/version "1.10.0-rc1"}
         org.clojure/clojurescript {:mvn/version "1.10.339"}}
 :aliases {:test {:extra-paths ["test"]
                  :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"

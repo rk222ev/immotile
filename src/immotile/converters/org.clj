@@ -35,7 +35,7 @@
 
 (defn- find-date-option
   [options]
-  (let [option #"#\+DATE"
+  (let [option #"(?i)#\+DATE"
         date #"(\d+-\d\d-\d\d)"]
     (some->> options
          (some #(if (re-find option %) % nil))
@@ -43,7 +43,7 @@
 
 (defn- find-title-option
   [options]
-  (let [option #"#\+TITLE"]
+  (let [option #"(?i)#\+TITLE"]
     (some-> options
             (->> (some #(when (re-find option %) %)))
             (str/split #":")

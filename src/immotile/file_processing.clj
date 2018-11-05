@@ -63,7 +63,7 @@
         files (sequence (comp (filter #(.isFile %))
                               (remove #(re-find paths-to-ignore (.getPath %))))
                         (file-seq (io/file (:src config))))]
-    (reset! posts (process-posts config))
+    (reset! posts (reverse (sort-by :date (process-posts config))))
     (mapv <!!
           (sequence
            (comp (map #(thread (single-file config %))))
