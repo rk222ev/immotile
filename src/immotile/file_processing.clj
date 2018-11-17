@@ -27,9 +27,13 @@
   (create-file config (c/convert (assoc config :posts posts) file)))
 
 (defn- copy-public-to-out
-  "Copies `file` to `out-path`."
-  [out-path file]
-  (let [dest (str out-path "/" (io/filename file))]
+  "Copies `file` to the build folder."
+  [config file]
+  (let [out-path (:out config)
+        src-path (:src config)
+        dest (str/replace (io/path file)
+                          (str src-path "/public")
+                          out-path)]
     (io/make-parents dest)
     (io/copy file dest)))
 
@@ -46,7 +50,7 @@
   (condp #(%1 %2) file
     post? (create-post config file)
     page? (create-page config @posts file)
-    public? (copy-public-to-out (:out config) file)
+    public? (copy-public-to-out config file)
     nil))
 
 (defn- process-posts
