@@ -17,7 +17,9 @@ Under development.
 - [X] Actually use the config
 - [ ] Move all configs to config.edn
 - [ ] Spec the config
-- [ ] Add init command
+- [X] Add init command
+- [ ] Adding pages/posts
+- [ ] Removing pages/posts
 
 ** Getting started
 Create a project skeleton with the command:
