@@ -1,4 +1,4 @@
 (fn [data]
-  [:div
-   [:h1 "Testpage header"]
-   [:p "Test paragraph"]])
+  {:body [:div
+          [:h1 "Testpage header"]
+          [:p "Test paragraph"]]})

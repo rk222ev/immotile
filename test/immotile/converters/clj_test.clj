@@ -16,6 +16,6 @@
   (spit expected-path (html (:body generated))))
 
 
-(deftest generates-html-from-org-files
+(deftest generates-html-from-clj-files
   (testing "builds expected html")
   (is (= expected-html (html (:body generated)))))
