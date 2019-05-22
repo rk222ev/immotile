@@ -51,6 +51,10 @@
     (swap! process/posts conj new-post))
   (process/file (config) (io/file "src/pages/index.clj")))
 
+(defn rebuild
+  []
+ (process/all-files (config)))
+
 (defn restart
   []
   (system/reload))
