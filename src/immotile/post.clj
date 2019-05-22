@@ -18,4 +18,5 @@
         kebab-cased-title (str (str/replace title #" " "-") ".org")
         dest (str path kebab-cased-title)]
     (io/make-parents dest)
-    (spit dest (page-content title date))))
+    (spit dest (page-content title date))
+    dest))

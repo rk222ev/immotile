@@ -46,7 +46,10 @@
 
 (defn create-post
   [title]
-  (post/create (config) title))
+  (let [file-path (post/create (config) title)
+        new-post (process/create-post (config) (io/file file-path))]
+    (swap! process/posts conj new-post))
+  (process/file (config) (io/file "src/pages/index.clj")))
 
 (defn restart
   []
