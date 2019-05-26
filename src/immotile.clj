@@ -33,7 +33,7 @@
 
 (defn build
   "Creates a production build."
-  [{src :src out :out :as conf}]
+  []
   (let [{src :src out :out :as conf} (config)]
     (mapv async/<!!
           [(async/thread
