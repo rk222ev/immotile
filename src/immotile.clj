@@ -58,3 +58,18 @@
 (defn restart
   []
   (system/reload))
+
+(def commands
+  [["start" "Starts the dev environment."]
+   ["stop" "Stops the dev environment."]
+   ["restart" "Restarts the dev environment."]
+   ["create-post" "Given a title creates a new post."]
+   ["rebuild" "Rebuilds entire webpage"]])
+
+
+(defn help
+  []
+  (println "Immotile")
+  (println "  Commands:")
+  (doseq [[cmd text] commands]
+    (println (format "  %-11s - %s" cmd text))))
